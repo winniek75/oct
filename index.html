@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCTO BICYCLE RENTAL｜東京のレンタサイクル・eバイクレンタル | Bike Rental Tokyo</title>
+<meta name="description" content="プロショップ品質のeバイク・クルーザーバイクを簡単オンライン予約。英語・韓国語・中国語対応。Rent pro-quality e-bikes & cruisers in Tokyo. Online booking, English support.">
+<meta name="keywords" content="レンタサイクル,自転車レンタル,eバイク,bike rental tokyo,e-bike rental japan,自行车租赁,자전거 대여">
+
+<!-- hreflang（?lang= 方式。ディレクトリ分割する場合は /en/ 等に変更） -->
+<link rel="canonical" href="https://octobicycle.com/rental/">
+<link rel="alternate" hreflang="ja" href="https://octobicycle.com/rental/?lang=ja">
+<link rel="alternate" hreflang="en" href="https://octobicycle.com/rental/?lang=en">
+<link rel="alternate" hreflang="ko" href="https://octobicycle.com/rental/?lang=ko">
+<link rel="alternate" hreflang="zh" href="https://octobicycle.com/rental/?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://octobicycle.com/rental/?lang=en">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="OCTO BICYCLE RENTAL — Ride Tokyo Differently">
+<meta property="og:description" content="Pro-quality e-bike & cruiser rental. Book online in EN / KO / ZH / JA.">
+<meta property="og:url" content="https://octobicycle.com/rental/">
+<meta property="og:image" content="https://octobicycle.com/rental/images/ogp.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<!-- 構造化データ：店舗（MEO対策の中核。住所・電話・座標を書き換えてください） -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BikeStore",
+  "name": "OCTO BICYCLE RENTAL",
+  "image": "https://octobicycle.com/rental/images/ogp.jpg",
+  "url": "https://octobicycle.com/rental/",
+  "telephone": "+81-3-0000-0000",
+  "priceRange": "¥1,500〜¥8,000",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "○○1-2-3",
+    "addressLocality": "○○区",
+    "addressRegion": "東京都",
+    "postalCode": "000-0000",
+    "addressCountry": "JP"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": 35.6812, "longitude": 139.7671 },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    "opens": "10:00", "closes": "19:00"
+  }],
+  "makesOffer": [
+    { "@type": "Offer", "name": "E-Bike Rental (1 Day)", "price": "5000", "priceCurrency": "JPY" },
+    { "@type": "Offer", "name": "Cruiser Bike Rental (1 Day)", "price": "3500", "priceCurrency": "JPY" },
+    { "@type": "Offer", "name": "City Bike Rental (1 Day)", "price": "2500", "priceCurrency": "JPY" }
+  ],
+  "availableLanguage": ["ja","en","ko","zh"]
+}
+</script>
+<!-- FAQ構造化データ（検索結果にFAQ表示） -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Do I need a license to ride? / 免許は必要ですか？",
+      "acceptedAnswer": { "@type": "Answer", "text": "No license is required for bicycles and pedal-assist e-bikes in Japan. 自転車・電動アシスト自転車に免許は不要です。" } },
+    { "@type": "Question", "name": "What do I need to bring? / 当日必要なものは？",
+      "acceptedAnswer": { "@type": "Answer", "text": "A photo ID (passport for visitors). Helmets are included for free. 身分証（観光客の方はパスポート）をご持参ください。ヘルメットは無料です。" } },
+    { "@type": "Question", "name": "Can I pay by credit card? / クレジットカードは使えますか？",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — Visa, Mastercard, Amex, JCB, Apple Pay and Google Pay are accepted online. オンラインで各種カード・Apple Pay・Google Payがご利用いただけます。" } }
+  ]
+}
+</script>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site-header" id="top">
+  <a class="brand" href="#top">
+    <span class="brand-mark">O</span>
+    <span class="brand-name">OCTO BICYCLE <em>RENTAL</em></span>
+  </a>
+  <nav class="main-nav" aria-label="Main">
+    <a href="#booking" data-i18n="nav.book"></a>
+    <a href="#fleet" data-i18n="nav.fleet"></a>
+    <a href="#how" data-i18n="nav.how"></a>
+    <a href="#area" data-i18n="nav.area"></a>
+    <a href="#company" data-i18n="nav.company"></a>
+    <a href="#access" data-i18n="nav.access"></a>
+  </nav>
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button data-lang="en">EN</button>
+    <button data-lang="ja">日本語</button>
+    <button data-lang="ko">한국어</button>
+    <button data-lang="zh">中文</button>
+  </div>
+  <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="images/hero.jpg" alt="Cruising Tokyo streets by e-bike — OCTO BICYCLE RENTAL" onerror="this.style.display='none'">
+  </div>
+  <div class="hero-inner">
+    <p class="hero-eyebrow" data-i18n="hero.eyebrow"></p>
+    <h1 class="hero-title">
+      <span data-i18n="hero.title1"></span><br>
+      <span class="accent" data-i18n="hero.title2"></span>
+    </h1>
+    <p class="hero-lead" data-i18n="hero.lead"></p>
+    <div class="hero-badges">
+      <span data-i18n="hero.badge1"></span>
+      <span data-i18n="hero.badge2"></span>
+      <span data-i18n="hero.badge3"></span>
+    </div>
+  </div>
+
+  <!-- ★ シグネチャー：搭乗券型・予約チケット（RINCLE型のWeb予約→オンライン決済導線） -->
+  <div class="ticket" id="booking">
+    <div class="ticket-main">
+      <p class="ticket-label" data-i18n="book.label"></p>
+      <h2 class="ticket-title" data-i18n="book.title"></h2>
+
+      <div class="ticket-grid">
+        <label class="field">
+          <span data-i18n="book.bike"></span>
+          <select id="bk-bike"></select>
+        </label>
+        <label class="field">
+          <span data-i18n="book.date"></span>
+          <input type="date" id="bk-date">
+        </label>
+        <label class="field">
+          <span data-i18n="book.duration"></span>
+          <select id="bk-duration">
+            <option value="3h" data-i18n="book.d3h"></option>
+            <option value="1d" selected data-i18n="book.d1d"></option>
+            <option value="2d" data-i18n="book.d2d"></option>
+          </select>
+        </label>
+        <label class="field">
+          <span data-i18n="book.qty"></span>
+          <select id="bk-qty">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="ticket-total">
+        <span data-i18n="book.total"></span>
+        <strong id="bk-total">¥0</strong>
+        <small data-i18n="book.taxin"></small>
+      </div>
+
+      <button class="btn-pay" id="bk-pay" data-i18n="book.pay"></button>
+      <p class="ticket-note" data-i18n="book.note"></p>
+    </div>
+    <div class="ticket-stub" aria-hidden="true">
+      <div class="stub-rotate">
+        <span>TOKYO&nbsp;RIDE&nbsp;PASS</span>
+        <span class="stub-barcode"></span>
+        <span class="stub-no">NO. 0001-OCTO</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>RENT · RIDE · EXPLORE · 借りて、走って、旅にでる · 빌리고, 달리고, 떠나자 · 租一辆车，出发探索 ·&nbsp;</span>
+    <span>RENT · RIDE · EXPLORE · 借りて、走って、旅にでる · 빌리고, 달리고, 떠나자 · 租一辆车，出发探索 ·&nbsp;</span>
+  </div>
+</div>
+
+<!-- ============ FLEET ============ -->
+<section class="section fleet" id="fleet">
+  <div class="section-head">
+    <p class="eyebrow" data-i18n="fleet.eyebrow"></p>
+    <h2 data-i18n="fleet.title"></h2>
+    <p class="section-lead" data-i18n="fleet.lead"></p>
+  </div>
+  <div class="fleet-grid" id="fleet-grid"><!-- JSで生成 --></div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section how" id="how">
+  <div class="section-head">
+    <p class="eyebrow" data-i18n="how.eyebrow"></p>
+    <h2 data-i18n="how.title"></h2>
+  </div>
+  <ol class="steps">
+    <li><span class="step-no">1</span><h3 data-i18n="how.s1t"></h3><p data-i18n="how.s1d"></p></li>
+    <li><span class="step-no">2</span><h3 data-i18n="how.s2t"></h3><p data-i18n="how.s2d"></p></li>
+    <li><span class="step-no">3</span><h3 data-i18n="how.s3t"></h3><p data-i18n="how.s3d"></p></li>
+    <li><span class="step-no">4</span><h3 data-i18n="how.s4t"></h3><p data-i18n="how.s4d"></p></li>
+  </ol>
+</section>
+
+<!-- ============ AREA (MEO) ============ -->
+<section class="section area" id="area">
+  <div class="section-head">
+    <p class="eyebrow" data-i18n="area.eyebrow"></p>
+    <h2 data-i18n="area.title"></h2>
+    <p class="section-lead" data-i18n="area.lead"></p>
+  </div>
+  <div class="area-grid">
+    <figure class="area-card"><img src="images/area1.jpg" alt="Riverside cycling course" onerror="this.src='images/placeholder.svg'"><figcaption data-i18n="area.spot1"></figcaption></figure>
+    <figure class="area-card"><img src="images/area2.jpg" alt="Old town streets by bicycle" onerror="this.src='images/placeholder.svg'"><figcaption data-i18n="area.spot2"></figcaption></figure>
+    <figure class="area-card"><img src="images/area3.jpg" alt="Bay area night ride" onerror="this.src='images/placeholder.svg'"><figcaption data-i18n="area.spot3"></figcaption></figure>
+  </div>
+  <!-- Googleマップ埋め込み：Googleマップで店舗を検索→共有→地図を埋め込む→srcを差し替え -->
+  <div class="map-embed">
+    <iframe src="https://www.google.com/maps?q=Tokyo%20Station&output=embed" loading="lazy" title="Shop location map" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</section>
+
+<!-- ============ COMPANY ============ -->
+<section class="section company" id="company">
+  <div class="company-inner">
+    <div class="company-photo">
+      <img src="images/shop.jpg" alt="OCTO BICYCLE shop interior" onerror="this.src='images/placeholder.svg'">
+    </div>
+    <div class="company-text">
+      <p class="eyebrow" data-i18n="co.eyebrow"></p>
+      <h2 data-i18n="co.title"></h2>
+      <p data-i18n="co.body1"></p>
+      <p data-i18n="co.body2"></p>
+      <dl class="co-table">
+        <dt data-i18n="co.name"></dt><dd>OCTO BICYCLE（オクトバイシクル）</dd>
+        <dt data-i18n="co.biz"></dt><dd data-i18n="co.bizval"></dd>
+        <dt data-i18n="co.addr"></dt><dd data-i18n="co.addrval"></dd>
+        <dt data-i18n="co.hours"></dt><dd data-i18n="co.hoursval"></dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section faq" id="faq">
+  <div class="section-head">
+    <p class="eyebrow">FAQ</p>
+    <h2 data-i18n="faq.title"></h2>
+  </div>
+  <div class="faq-list">
+    <details><summary data-i18n="faq.q1"></summary><p data-i18n="faq.a1"></p></details>
+    <details><summary data-i18n="faq.q2"></summary><p data-i18n="faq.a2"></p></details>
+    <details><summary data-i18n="faq.q3"></summary><p data-i18n="faq.a3"></p></details>
+    <details><summary data-i18n="faq.q4"></summary><p data-i18n="faq.a4"></p></details>
+  </div>
+</section>
+
+<!-- ============ ACCESS / CONTACT ============ -->
+<section class="section access" id="access">
+  <div class="section-head">
+    <p class="eyebrow" data-i18n="ac.eyebrow"></p>
+    <h2 data-i18n="ac.title"></h2>
+  </div>
+  <div class="access-grid">
+    <div>
+      <h3 data-i18n="ac.addr"></h3>
+      <p data-i18n="co.addrval"></p>
+      <h3 data-i18n="ac.hours"></h3>
+      <p data-i18n="co.hoursval"></p>
+    </div>
+    <div>
+      <h3 data-i18n="ac.contact"></h3>
+      <p><a class="btn-line" href="https://lin.ee/XXXXXXX" target="_blank" rel="noopener">LINE</a>
+         <a class="btn-mail" href="mailto:info@octobicycle.com" data-i18n="ac.mail"></a></p>
+      <p class="small" data-i18n="ac.langs"></p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> OCTO BICYCLE. All rights reserved.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

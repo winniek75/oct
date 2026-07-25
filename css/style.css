@@ -1,0 +1,192 @@
+/* =========================================================
+   OCTO BICYCLE RENTAL
+   Palette: ink #0E1B2C / porcelain #F2F5F4 / ride-blue #1F5EFF
+            sun #FFC93C / slate #5A6B7C
+   Type: Archivo (display) + Noto Sans JP/KR/SC (body)
+========================================================= */
+:root{
+  --ink:#0E1B2C;
+  --paper:#F2F5F4;
+  --blue:#1F5EFF;
+  --blue-dark:#0F3FBF;
+  --sun:#FFC93C;
+  --slate:#5A6B7C;
+  --white:#FFFFFF;
+  --radius:18px;
+  --font-display:"Archivo","Noto Sans JP","Noto Sans KR","Noto Sans SC",sans-serif;
+  --font-body:"Noto Sans JP","Noto Sans KR","Noto Sans SC","Archivo",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--ink);background:var(--paper);line-height:1.75;font-size:16px}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:var(--font-display);line-height:1.2}
+.small{font-size:.85rem;color:var(--slate)}
+
+/* ---------- Header ---------- */
+.site-header{position:fixed;inset:0 0 auto 0;z-index:100;display:flex;align-items:center;gap:1.5rem;
+  padding:.8rem 1.4rem;background:rgba(242,245,244,.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(14,27,44,.08)}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-weight:900}
+.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;
+  background:var(--ink);color:var(--sun);font-size:1.1rem}
+.brand-name{letter-spacing:.04em;font-size:.95rem}
+.brand-name em{font-style:normal;color:var(--blue)}
+.main-nav{display:flex;gap:1.2rem;margin-left:auto;font-size:.85rem;font-weight:700}
+.main-nav a{opacity:.75;transition:.2s}
+.main-nav a:hover{opacity:1;color:var(--blue)}
+.lang-switch{display:flex;gap:.3rem;background:var(--white);border:1px solid rgba(14,27,44,.12);
+  border-radius:999px;padding:.2rem}
+.lang-switch button{border:0;background:transparent;font:700 .72rem var(--font-display);
+  padding:.35rem .6rem;border-radius:999px;cursor:pointer;color:var(--slate)}
+.lang-switch button.active{background:var(--ink);color:var(--white)}
+.nav-toggle{display:none}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  padding:7.5rem 1.4rem 4rem;overflow:hidden;background:var(--ink)}
+.hero-bg{position:absolute;inset:0}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.55}
+.hero-bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(105deg,rgba(14,27,44,.92) 15%,rgba(14,27,44,.35) 60%,rgba(31,94,255,.25))}
+.hero-inner{position:relative;max-width:1100px;margin:0 auto;width:100%;color:var(--white)}
+.hero-eyebrow{font:700 .8rem var(--font-display);letter-spacing:.35em;color:var(--sun);text-transform:uppercase;margin-bottom:1rem}
+.hero-title{font-size:clamp(2.4rem,6.5vw,4.6rem);font-weight:900;font-stretch:110%;letter-spacing:-.01em}
+.hero-title .accent{color:var(--sun)}
+.hero-lead{max-width:34em;margin-top:1.2rem;font-size:1.05rem;color:rgba(255,255,255,.85)}
+.hero-badges{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.hero-badges span{font:700 .75rem var(--font-display);border:1px solid rgba(255,255,255,.4);
+  border-radius:999px;padding:.35rem .9rem;color:rgba(255,255,255,.9)}
+
+/* ---------- Signature: boarding-pass booking ticket ---------- */
+.ticket{position:relative;max-width:1100px;margin:3rem auto 0;width:100%;display:flex;
+  filter:drop-shadow(0 24px 40px rgba(14,27,44,.45))}
+.ticket-main{flex:1;background:var(--white);border-radius:var(--radius) 0 0 var(--radius);padding:1.8rem 2rem}
+.ticket-label{font:700 .7rem var(--font-display);letter-spacing:.3em;color:var(--blue);text-transform:uppercase}
+.ticket-title{font-size:1.4rem;font-weight:900;margin:.2rem 0 1.1rem}
+.ticket-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem}
+.field{display:flex;flex-direction:column;gap:.3rem;font:700 .72rem var(--font-display);color:var(--slate);
+  text-transform:uppercase;letter-spacing:.08em}
+.field select,.field input{font:600 .95rem var(--font-body);color:var(--ink);
+  border:1.5px solid rgba(14,27,44,.15);border-radius:10px;padding:.6rem .7rem;background:var(--paper)}
+.field select:focus,.field input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.ticket-total{display:flex;align-items:baseline;gap:.6rem;margin:1.2rem 0 .9rem;
+  border-top:2px dashed rgba(14,27,44,.15);padding-top:1rem;font-weight:700;color:var(--slate)}
+.ticket-total strong{font:900 2rem var(--font-display);color:var(--ink)}
+.btn-pay{width:100%;border:0;cursor:pointer;border-radius:12px;padding:1rem;
+  font:900 1.05rem var(--font-display);letter-spacing:.05em;background:var(--blue);color:var(--white);
+  transition:transform .15s,background .2s}
+.btn-pay:hover{background:var(--blue-dark);transform:translateY(-2px)}
+.ticket-note{margin-top:.7rem;font-size:.78rem;color:var(--slate)}
+/* stub with perforation */
+.ticket-stub{width:120px;background:var(--sun);border-radius:0 var(--radius) var(--radius) 0;
+  position:relative;display:grid;place-items:center;
+  -webkit-mask:radial-gradient(circle 9px at left center, transparent 96%, #000) left/100% 28px;
+          mask:radial-gradient(circle 9px at 0 14px, transparent 8px, #000 9px) 0 0/100% 28px}
+.stub-rotate{transform:rotate(90deg);display:flex;align-items:center;gap:1rem;white-space:nowrap;
+  font:900 .8rem var(--font-display);letter-spacing:.25em;color:var(--ink)}
+.stub-barcode{display:inline-block;width:70px;height:22px;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 6px,transparent 6px 9px)}
+.stub-no{font:700 .6rem var(--font-display);letter-spacing:.15em}
+
+/* ---------- Marquee ---------- */
+.marquee{overflow:hidden;background:var(--ink);color:var(--sun);padding:.7rem 0}
+.marquee-track{display:flex;width:max-content;animation:scroll 28s linear infinite;
+  font:900 .95rem var(--font-display);letter-spacing:.2em}
+@keyframes scroll{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+
+/* ---------- Sections ---------- */
+.section{padding:5.5rem 1.4rem;max-width:1100px;margin:0 auto}
+.section-head{margin-bottom:2.5rem}
+.eyebrow{font:700 .75rem var(--font-display);letter-spacing:.35em;text-transform:uppercase;color:var(--blue)}
+.section-head h2{font-size:clamp(1.7rem,3.5vw,2.6rem);font-weight:900;margin-top:.4rem}
+.section-lead{color:var(--slate);max-width:40em;margin-top:.7rem}
+
+/* Fleet */
+.fleet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem}
+.bike-card{background:var(--white);border-radius:var(--radius);overflow:hidden;
+  border:1px solid rgba(14,27,44,.08);transition:transform .2s,box-shadow .2s}
+.bike-card:hover{transform:translateY(-6px);box-shadow:0 18px 32px rgba(14,27,44,.14)}
+.bike-card img{height:210px;width:100%;object-fit:cover;background:#dde4e2}
+.bike-card .bc-body{padding:1.2rem 1.3rem 1.5rem}
+.bike-card h3{font-size:1.15rem;font-weight:900}
+.bike-card .bc-tag{display:inline-block;font:700 .68rem var(--font-display);letter-spacing:.12em;
+  background:var(--paper);border-radius:999px;padding:.25rem .7rem;color:var(--slate);margin:.5rem 0}
+.bike-card p{font-size:.88rem;color:var(--slate)}
+.bike-card .bc-price{margin-top:.8rem;font:900 1.3rem var(--font-display);color:var(--blue)}
+.bike-card .bc-price small{font-size:.75rem;color:var(--slate);font-weight:700}
+.bike-card button{margin-top:.9rem;width:100%;border:2px solid var(--ink);background:transparent;
+  border-radius:10px;padding:.6rem;font:800 .9rem var(--font-display);cursor:pointer;transition:.2s}
+.bike-card button:hover{background:var(--ink);color:var(--sun)}
+
+/* Steps */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;counter-reset:s}
+.steps li{background:var(--white);border-radius:var(--radius);padding:1.6rem 1.4rem;border:1px solid rgba(14,27,44,.08)}
+.step-no{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;
+  background:var(--ink);color:var(--sun);font:900 1.1rem var(--font-display);margin-bottom:.9rem}
+.steps h3{font-size:1.05rem;margin-bottom:.4rem}
+.steps p{font-size:.88rem;color:var(--slate)}
+
+/* Area */
+.area-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-bottom:1.6rem}
+.area-card{border-radius:var(--radius);overflow:hidden;position:relative}
+.area-card img{height:260px;width:100%;object-fit:cover}
+.area-card figcaption{position:absolute;inset:auto 0 0 0;padding:2.2rem 1rem .9rem;color:#fff;
+  font:800 1rem var(--font-display);background:linear-gradient(transparent,rgba(14,27,44,.85))}
+.map-embed{border-radius:var(--radius);overflow:hidden;border:1px solid rgba(14,27,44,.1)}
+.map-embed iframe{width:100%;height:380px;border:0;display:block}
+
+/* Company */
+.company{background:var(--ink);max-width:none;color:var(--white)}
+.company-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr;gap:3rem;align-items:center}
+.company-photo img{border-radius:var(--radius);height:100%;object-fit:cover}
+.company .eyebrow{color:var(--sun)}
+.company h2{font-size:clamp(1.6rem,3vw,2.3rem);margin-bottom:1rem}
+.company p{color:rgba(255,255,255,.82);margin-bottom:.9rem;font-size:.95rem}
+.co-table{display:grid;grid-template-columns:auto 1fr;gap:.5rem 1.4rem;margin-top:1.4rem;
+  border-top:1px solid rgba(255,255,255,.15);padding-top:1.2rem;font-size:.9rem}
+.co-table dt{font-weight:800;color:var(--sun)}
+.co-table dd{color:rgba(255,255,255,.85)}
+
+/* FAQ */
+.faq-list details{background:var(--white);border-radius:14px;border:1px solid rgba(14,27,44,.08);
+  margin-bottom:.8rem;padding:1rem 1.3rem}
+.faq-list summary{cursor:pointer;font-weight:800;font-family:var(--font-display)}
+.faq-list p{margin-top:.6rem;font-size:.9rem;color:var(--slate)}
+
+/* Access */
+.access-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.access h3{font-size:1rem;color:var(--blue);margin:.8rem 0 .3rem}
+.btn-line,.btn-mail{display:inline-block;border-radius:999px;padding:.6rem 1.5rem;font:800 .9rem var(--font-display);margin:.4rem .4rem 0 0}
+.btn-line{background:#06C755;color:#fff}
+.btn-mail{border:2px solid var(--ink)}
+.btn-mail:hover{background:var(--ink);color:var(--sun)}
+
+.site-footer{background:var(--ink);color:rgba(255,255,255,.6);text-align:center;padding:1.6rem;font-size:.8rem}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+.reveal.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .main-nav{display:none}
+  .nav-toggle{display:flex;flex-direction:column;gap:4px;margin-left:auto;background:none;border:0;cursor:pointer}
+  .nav-toggle span{width:22px;height:2.5px;background:var(--ink);border-radius:2px}
+  .lang-switch{margin-left:0}
+  .site-header{gap:.8rem}
+  .main-nav.open{display:flex;position:fixed;inset:60px 0 auto 0;background:var(--white);
+    flex-direction:column;padding:1.2rem 1.6rem;border-bottom:1px solid rgba(14,27,44,.1)}
+  .ticket{flex-direction:column;filter:drop-shadow(0 14px 24px rgba(14,27,44,.4))}
+  .ticket-main{border-radius:var(--radius) var(--radius) 0 0}
+  .ticket-stub{width:100%;height:74px;border-radius:0 0 var(--radius) var(--radius);
+    -webkit-mask:radial-gradient(circle 9px at 14px 0, transparent 8px, #000 9px) 0 0/28px 100%;
+            mask:radial-gradient(circle 9px at 14px 0, transparent 8px, #000 9px) 0 0/28px 100%}
+  .stub-rotate{transform:none}
+  .ticket-grid{grid-template-columns:1fr 1fr}
+  .company-inner,.access-grid{grid-template-columns:1fr}
+}
+@media (max-width:520px){.ticket-grid{grid-template-columns:1fr}}

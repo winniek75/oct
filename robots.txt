@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://octobicycle.com/rental/sitemap.xml

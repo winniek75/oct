@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <rect width="800" height="520" fill="#DDE4E2"/>
+  <g fill="none" stroke="#5A6B7C" stroke-width="10" opacity=".55">
+    <circle cx="290" cy="340" r="80"/>
+    <circle cx="530" cy="340" r="80"/>
+    <path d="M290 340 L370 220 L500 220 L530 340 M370 220 L410 340 L290 340 M500 220 L470 180 M450 180 h60"/>
+  </g>
+  <text x="400" y="470" text-anchor="middle" font-family="Arial" font-size="22" fill="#5A6B7C">PHOTO — images/ フォルダに写真を入れてください</text>
+</svg>

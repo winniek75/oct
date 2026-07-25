@@ -37,22 +37,21 @@
   "name": "OCTO BICYCLE RENTAL",
   "image": "https://octobicycle.com/rental/images/ogp.jpg",
   "url": "https://octobicycle.com/rental/",
-  "telephone": "+81-3-0000-0000",
+  "telephone": "+81-70-3227-6440",
   "priceRange": "¥1,500〜¥8,000",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "○○1-2-3",
-    "addressLocality": "○○区",
+    "streetAddress": "世田谷2-28-21",
+    "addressLocality": "世田谷区",
     "addressRegion": "東京都",
-    "postalCode": "000-0000",
+    "postalCode": "154-0017",
     "addressCountry": "JP"
   },
-  "geo": { "@type": "GeoCoordinates", "latitude": 35.6812, "longitude": 139.7671 },
-  "openingHoursSpecification": [{
-    "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-    "opens": "10:00", "closes": "19:00"
-  }],
+  "geo": { "@type": "GeoCoordinates", "latitude": 35.6388, "longitude": 139.6531 },
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Wednesday","Thursday","Friday","Saturday"], "opens": "11:00", "closes": "19:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Sunday"], "opens": "10:00", "closes": "18:00" }
+  ],
   "makesOffer": [
     { "@type": "Offer", "name": "E-Bike Rental (1 Day)", "price": "5000", "priceCurrency": "JPY" },
     { "@type": "Offer", "name": "Cruiser Bike Rental (1 Day)", "price": "3500", "priceCurrency": "JPY" },
@@ -82,7 +81,7 @@
 <!-- ============ HEADER ============ -->
 <header class="site-header" id="top">
   <a class="brand" href="#top">
-    <span class="brand-mark">O</span>
+    <img src="images/logo.png" alt="OCTO BICYCLE" class="brand-logo" style="height:40px;">
     <span class="brand-name">OCTO BICYCLE <em>RENTAL</em></span>
   </a>
   <nav class="main-nav" aria-label="Main">
@@ -216,7 +215,7 @@
   </div>
   <!-- Googleマップ埋め込み：Googleマップで店舗を検索→共有→地図を埋め込む→srcを差し替え -->
   <div class="map-embed">
-    <iframe src="https://www.google.com/maps?q=Tokyo%20Station&output=embed" loading="lazy" title="Shop location map" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <iframe src="https://www.google.com/maps?q=%E6%9D%B1%E4%BA%AC%E9%83%BD%E4%B8%96%E7%94%B0%E8%B0%B7%E5%8C%BA%E4%B8%96%E7%94%B0%E8%B0%B72-28-21&output=embed" loading="lazy" title="Shop location map" referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>
 </section>
 
@@ -270,8 +269,9 @@
     </div>
     <div>
       <h3 data-i18n="ac.contact"></h3>
-      <p><a class="btn-line" href="https://lin.ee/XXXXXXX" target="_blank" rel="noopener">LINE</a>
-         <a class="btn-mail" href="mailto:info@octobicycle.com" data-i18n="ac.mail"></a></p>
+      <p><a class="btn-tel" href="tel:07032276440">070-3227-6440</a></p>
+      <p><a class="btn-mail" href="mailto:info@octobicycle.com" data-i18n="ac.mail"></a></p>
+      <p><a class="btn-ig" href="https://www.instagram.com/octobicycle/" target="_blank" rel="noopener">@octobicycle</a></p>
       <p class="small" data-i18n="ac.langs"></p>
     </div>
   </div>

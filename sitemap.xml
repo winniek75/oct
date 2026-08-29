@@ -10,4 +10,9 @@
     <xhtml:link rel="alternate" hreflang="ko" href="https://octobicycle.com/rental/?lang=ko"/>
     <xhtml:link rel="alternate" hreflang="zh" href="https://octobicycle.com/rental/?lang=zh"/>
   </url>
+  <url>
+    <loc>https://octobicycle.com/rental/blog/gotokuji-lucky-cat.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

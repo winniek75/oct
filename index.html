@@ -71,7 +71,11 @@
     { "@type": "Question", "name": "What do I need to bring? / 当日必要なものは？",
       "acceptedAnswer": { "@type": "Answer", "text": "A photo ID (passport for visitors). Helmets are included for free. 身分証（観光客の方はパスポート）をご持参ください。ヘルメットは無料です。" } },
     { "@type": "Question", "name": "Can I pay by credit card? / クレジットカードは使えますか？",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — Visa, Mastercard, Amex, JCB, Apple Pay and Google Pay are accepted online. オンラインで各種カード・Apple Pay・Google Payがご利用いただけます。" } }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — Visa, Mastercard, Amex, JCB, Apple Pay and Google Pay are accepted online. オンラインで各種カード・Apple Pay・Google Payがご利用いただけます。" } },
+    { "@type": "Question", "name": "Can children ride? / 子どもも乗れますか？",
+      "acceptedAnswer": { "@type": "Answer", "text": "As a guide, riders 150 cm and taller can ride safely; we offer a test ride at the shop. 目安として身長150cm以上の方に安全にご利用いただけます。店頭で試乗のうえご案内します。" } },
+    { "@type": "Question", "name": "What are Japan's cycling rules? / 日本の自転車ルールは？",
+      "acceptedAnswer": { "@type": "Answer", "text": "Ride on the left, lights on at night, pedestrians first on sidewalks, no riding after drinking. Staff explains the basics at pick-up. 左側通行・夜間ライト点灯・歩道は歩行者優先。お渡し時にスタッフがご説明します。" } }
   ]
 }
 </script>
@@ -87,8 +91,10 @@
   <nav class="main-nav" aria-label="Main">
     <a href="#booking" data-i18n="nav.book"></a>
     <a href="#fleet" data-i18n="nav.fleet"></a>
+    <a href="#plans" data-i18n="nav.plans"></a>
     <a href="#how" data-i18n="nav.how"></a>
     <a href="#area" data-i18n="nav.area"></a>
+    <a href="#journal" data-i18n="nav.journal"></a>
     <a href="#company" data-i18n="nav.company"></a>
     <a href="#access" data-i18n="nav.access"></a>
   </nav>
@@ -105,12 +111,16 @@
 <section class="hero">
   <div class="hero-bg">
     <img src="images/hero.jpg" alt="Cruising Tokyo streets by e-bike — OCTO BICYCLE RENTAL" onerror="this.style.display='none'">
+    <!-- images/hero.mp4 を置くと自動で動画ヒーローになります（無ければ画像のまま） -->
+    <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="images/hero.jpg" aria-hidden="true">
+      <source src="images/hero.mp4" type="video/mp4">
+    </video>
   </div>
   <div class="hero-inner">
     <p class="hero-eyebrow" data-i18n="hero.eyebrow"></p>
     <h1 class="hero-title">
-      <span data-i18n="hero.title1"></span><br>
-      <span class="accent" data-i18n="hero.title2"></span>
+      <span class="line"><span data-i18n="hero.title1"></span></span>
+      <span class="line accent"><span data-i18n="hero.title2"></span></span>
     </h1>
     <p class="hero-lead" data-i18n="hero.lead"></p>
     <div class="hero-badges">
@@ -124,6 +134,7 @@
   <div class="ticket" id="booking">
     <div class="ticket-main">
       <p class="ticket-label" data-i18n="book.label"></p>
+      <p class="ticket-promo" id="ticket-promo" hidden>★ <span id="ticket-promo-text"></span></p>
       <h2 class="ticket-title" data-i18n="book.title"></h2>
 
       <div class="ticket-grid">
@@ -149,7 +160,16 @@
             <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
           </select>
         </label>
+        <label class="field span2">
+          <span data-i18n="book.name"></span>
+          <input type="text" id="bk-name" autocomplete="name" placeholder="Taro Yamada">
+        </label>
+        <label class="field span2">
+          <span data-i18n="book.email"></span>
+          <input type="email" id="bk-email" autocomplete="email" placeholder="you@example.com">
+        </label>
       </div>
+      <p class="bk-avail" id="bk-avail" hidden></p>
 
       <div class="ticket-total">
         <span data-i18n="book.total"></span>
@@ -177,9 +197,19 @@
   </div>
 </div>
 
+<!-- ============ TRUST BAR（クチコミ導線。リンクは js/config.js の links で編集） ============ -->
+<div class="trust-bar" id="trust-bar" hidden>
+  <span class="trust-label" data-i18n="trust.label"></span>
+  <div class="trust-links">
+    <a id="trust-google" target="_blank" rel="noopener" hidden><span class="trust-ico">G</span><span data-i18n="trust.review"></span></a>
+    <a id="trust-tripadvisor" target="_blank" rel="noopener" hidden><span class="trust-ico">T</span>Tripadvisor</a>
+    <a id="trust-instagram" target="_blank" rel="noopener" hidden><span class="trust-ico">◎</span>Instagram</a>
+  </div>
+</div>
+
 <!-- ============ FLEET ============ -->
 <section class="section fleet" id="fleet">
-  <div class="section-head">
+  <div class="section-head" data-ghost="FLEET">
     <p class="eyebrow" data-i18n="fleet.eyebrow"></p>
     <h2 data-i18n="fleet.title"></h2>
     <p class="section-lead" data-i18n="fleet.lead"></p>
@@ -187,9 +217,19 @@
   <div class="fleet-grid" id="fleet-grid"><!-- JSで生成 --></div>
 </section>
 
+<!-- ============ RIDE PLANS（TRB型プランカード。内容は js/config.js の plans で編集） ============ -->
+<section class="section plans" id="plans">
+  <div class="section-head" data-ghost="RIDE">
+    <p class="eyebrow" data-i18n="plans.eyebrow"></p>
+    <h2 data-i18n="plans.title"></h2>
+    <p class="section-lead" data-i18n="plans.lead"></p>
+  </div>
+  <div class="plans-grid" id="plans-grid"><!-- JSで生成 --></div>
+</section>
+
 <!-- ============ HOW IT WORKS ============ -->
 <section class="section how" id="how">
-  <div class="section-head">
+  <div class="section-head" data-ghost="FLOW">
     <p class="eyebrow" data-i18n="how.eyebrow"></p>
     <h2 data-i18n="how.title"></h2>
   </div>
@@ -201,9 +241,19 @@
   </ol>
 </section>
 
+<!-- ============ HOTEL DELIVERY（config の features.delivery を true で表示） ============ -->
+<section class="section delivery" id="delivery" hidden>
+  <div class="delivery-inner">
+    <p class="eyebrow" data-i18n="dl.eyebrow"></p>
+    <h2 data-i18n="dl.title"></h2>
+    <p class="section-lead" data-i18n="dl.lead"></p>
+    <a class="btn-outline" id="dl-mail" href="#" data-i18n="dl.cta"></a>
+  </div>
+</section>
+
 <!-- ============ AREA (MEO) ============ -->
 <section class="section area" id="area">
-  <div class="section-head">
+  <div class="section-head" data-ghost="TOKYO">
     <p class="eyebrow" data-i18n="area.eyebrow"></p>
     <h2 data-i18n="area.title"></h2>
     <p class="section-lead" data-i18n="area.lead"></p>
@@ -240,9 +290,38 @@
   </div>
 </section>
 
+<!-- ============ SAFETY & SUPPORT（TRBのサポート訴求のOCTO版） ============ -->
+<section class="section support" id="support">
+  <div class="section-head" data-ghost="SAFE">
+    <p class="eyebrow" data-i18n="sp.eyebrow"></p>
+    <h2 data-i18n="sp.title"></h2>
+  </div>
+  <div class="support-grid">
+    <div class="support-card"><span class="sp-ico">🪖</span><h3 data-i18n="sp.i1t"></h3><p data-i18n="sp.i1d"></p></div>
+    <div class="support-card"><span class="sp-ico">🔧</span><h3 data-i18n="sp.i2t"></h3><p data-i18n="sp.i2d"></p></div>
+    <div class="support-card"><span class="sp-ico">🌏</span><h3 data-i18n="sp.i3t"></h3><p data-i18n="sp.i3d"></p></div>
+  </div>
+  <div class="rules-box">
+    <h3 data-i18n="sp.rulesTitle"></h3>
+    <ul class="rules-list">
+      <li data-i18n="sp.r1"></li><li data-i18n="sp.r2"></li><li data-i18n="sp.r3"></li>
+      <li data-i18n="sp.r4"></li><li data-i18n="sp.r5"></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ GUEST VOICES（config の reviews が空の間は非表示） ============ -->
+<section class="section reviews" id="reviews" hidden>
+  <div class="section-head" data-ghost="VOICE">
+    <p class="eyebrow" data-i18n="rv.eyebrow"></p>
+    <h2 data-i18n="rv.title"></h2>
+  </div>
+  <div class="reviews-grid" id="reviews-grid"><!-- JSで生成 --></div>
+</section>
+
 <!-- ============ FAQ ============ -->
 <section class="section faq" id="faq">
-  <div class="section-head">
+  <div class="section-head" data-ghost="Q&A">
     <p class="eyebrow">FAQ</p>
     <h2 data-i18n="faq.title"></h2>
   </div>
@@ -251,12 +330,24 @@
     <details><summary data-i18n="faq.q2"></summary><p data-i18n="faq.a2"></p></details>
     <details><summary data-i18n="faq.q3"></summary><p data-i18n="faq.a3"></p></details>
     <details><summary data-i18n="faq.q4"></summary><p data-i18n="faq.a4"></p></details>
+    <details><summary data-i18n="faq.q5"></summary><p data-i18n="faq.a5"></p></details>
+    <details><summary data-i18n="faq.q6"></summary><p data-i18n="faq.a6"></p></details>
   </div>
+</section>
+
+<!-- ============ JOURNAL（ブログ。記事は js/config.js の posts と blog/ フォルダで管理） ============ -->
+<section class="section journal" id="journal">
+  <div class="section-head" data-ghost="RIDE&READ">
+    <p class="eyebrow" data-i18n="blog.eyebrow"></p>
+    <h2 data-i18n="blog.title"></h2>
+    <p class="section-lead" data-i18n="blog.lead"></p>
+  </div>
+  <div class="journal-grid" id="journal-grid"><!-- JSで生成 --></div>
 </section>
 
 <!-- ============ ACCESS / CONTACT ============ -->
 <section class="section access" id="access">
-  <div class="section-head">
+  <div class="section-head" data-ghost="VISIT">
     <p class="eyebrow" data-i18n="ac.eyebrow"></p>
     <h2 data-i18n="ac.title"></h2>
   </div>
@@ -280,6 +371,16 @@
 <footer class="site-footer">
   <p>© <span id="year"></span> OCTO BICYCLE. All rights reserved.</p>
 </footer>
+
+<!-- スマホ用固定予約バー & 連絡ボタン（configの features.stickyCta / links で制御） -->
+<div class="sticky-cta" id="sticky-cta" hidden>
+  <a class="sticky-book" href="#booking" data-i18n="cta.book"></a>
+  <a class="sticky-tel" href="tel:07032276440" aria-label="Call">📞</a>
+</div>
+<div class="contact-float" id="contact-float" hidden>
+  <a id="cf-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp" hidden>WhatsApp</a>
+  <a id="cf-line" target="_blank" rel="noopener" aria-label="LINE" hidden>LINE</a>
+</div>
 
 <script src="js/config.js"></script>
 <script src="js/i18n.js"></script>

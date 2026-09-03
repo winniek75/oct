@@ -577,3 +577,17 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
 .page-photo{max-height:340px;overflow:hidden;border-bottom:1px solid var(--line)}
 .page-photo img{width:100%;height:340px;object-fit:cover}
 @media (max-width:480px){.page-photo img{height:200px}}
+
+.hint-delivery{background:#FFF4D6;color:#6B5410}
+
+/* ---- 配達料金表 ---- */
+.dfee-table{margin-top:14px;display:grid;gap:6px}
+.dfee-row{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  border-bottom:1px dashed #3A4830;padding-bottom:6px;font-size:13px;
+}
+.dfee-wards{color:#C9D6BE;line-height:1.7}
+.dfee-wards i{font-style:normal;font-family:var(--font-latin);font-size:10.5px;color:#7E9070;margin-left:2px}
+.dfee-price{font-family:var(--font-latin);font-weight:800;color:#8FE79A;white-space:nowrap}
+
+.hint-ok{background:#DFF5DC;color:#1C5B26}

@@ -178,15 +178,30 @@
             <label for="bkStart" data-i18n="book.start">開始日</label>
             <input type="date" id="bkStart">
           </div>
+          <div class="field">
+            <label for="bkName" data-i18n="book.name">お名前</label>
+            <input type="text" id="bkName" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="bkContact" data-i18n="book.contact">メールまたは電話番号</label>
+            <input type="text" id="bkContact" autocomplete="email" inputmode="email">
+          </div>
           <label class="check">
             <input type="checkbox" id="bkDelivery">
             <span data-i18n="book.delivery">ホテル・指定場所への配達を希望（別途料金）</span>
           </label>
+          <div class="field" id="bkAreaWrap" hidden>
+            <label for="bkArea" data-i18n="book.area">お届けエリア</label>
+            <select id="bkArea"></select>
+          </div>
           <div class="ticket-total">
             <span class="lbl" data-i18n="book.total">合計</span>
             <span class="amt" id="bkTotal">¥3,500</span>
           </div>
           <p class="hint" id="bkWeekHint" hidden data-i18n="book.weekHint"></p>
+          <p class="hint hint-delivery" id="bkDeliveryHint" hidden data-i18n="book.deliveryHint"></p>
+          <p class="hint hint-ok" id="bkDone" hidden data-i18n="book.done"></p>
+          <p class="hint hint-delivery" id="bkErr" hidden data-i18n="book.err"></p>
           <a class="btn pay" id="bkPay" hidden target="_blank" rel="noopener" data-i18n="book.pay">オンライン決済で予約</a>
           <button class="btn" id="bkSubmit" data-i18n="book.submit">この内容で予約リクエスト</button>
           <p class="ticket-note" data-i18n="book.note"></p>
@@ -229,6 +244,7 @@
       <div>
         <b data-i18n="pricing.deliveryTitle">配達オプション</b>
         <span id="deliveryNote"></span>
+        <div class="dfee-table" id="deliveryFees"></div>
       </div>
     </div>
   </div>

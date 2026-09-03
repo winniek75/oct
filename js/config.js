@@ -9,25 +9,33 @@ const OCTO_CONFIG = {
      adminEmail    : 予約スプレッドシート管理用（サイトには表示されません。
                      gas/booking-api.gs の通知先に使用） */
   customerEmail: "octobicycle@gmail.com",
-  adminEmail: "yuji19920508@gmail.com",
+
+  /* 予約台帳API（Google Apps Script）のウェブアプリURL。
+     gas/booking-api.gs をスプレッドシートに設置してデプロイし、
+     発行されたURLをここに貼ると、予約リクエストが自動でシートに記録されます。
+     空欄("")の間は従来どおりメール作成にフォールバックします。 */
+  bookingApiUrl: "",
+
+  adminEmail: "8octo.bicycle@gmail.com",
   phone: "+81-70-3227-6440",
 
   /* ---- 拠点（貸出・返却場所）---- */
   location: {
-    postal: "156-0042",
+    /* 掲載するのは羽根木の拠点住所のみ。
+       旧サイトの「世田谷2-28-21」（〒154-0017）は掲載しないこと。 */
     address: {
-      ja: "東京都世田谷区羽根木一丁目29-13 第二羽根木コーポ103",
+      ja: "〒156-0042 東京都世田谷区羽根木一丁目29-13 第二羽根木コーポ103",
       en: "#103 Dai-ni Haneki Corp, 1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042",
-      ko: "도쿄도 세타가야구 하네기 1-29-13 제2하네기 코포 103호",
-      zh: "东京都世田谷区羽根木一丁目29-13 第二羽根木公寓103"
+      ko: "〒156-0042 도쿄도 세타가야구 하네기 1-29-13 제2하네기 코포 103호",
+      zh: "〒156-0042 东京都世田谷区羽根木一丁目29-13 第二羽根木公寓103"
     },
     mapQuery: "東京都世田谷区羽根木1-29-13",
     closedDays: { ja: "定休日なし", en: "Open every day", ko: "연중무휴", zh: "全年无休" },
     note: {
-      ja: "貸出・返却は世田谷・羽根木の倉庫にて。時間はご予約時に調整します。",
-      en: "Pick-up & return at our Setagaya (Haneki) warehouse. Times arranged when you book.",
-      ko: "대여·반납은 세타가야 하네기 창고에서. 시간은 예약 시 조정합니다.",
-      zh: "取车·还车地点为世田谷羽根木仓库。具体时间在预约时协商。"
+      ja: "貸出・返却は羽根木の拠点にて。時間はご予約時に調整します。",
+      en: "Pick-up & return at our Haneki base. Times arranged when you book.",
+      ko: "대여·반납은 하네기 거점에서. 시간은 예약 시 조정합니다.",
+      zh: "取车·还车地点为羽根木据点。具体时间在预约时协商。"
     }
   },
 
@@ -75,14 +83,35 @@ const OCTO_CONFIG = {
     month: ""    // 1ヶ月プラン ¥22,000
   },
 
+  /* 配達込みプランのStripeリンク（プラン × 配達料金帯）
+     Stripeで「プラン料金＋配達料」を合算した固定金額のPayment Linkを作成して貼ると、
+     そのエリアの即時決済が有効になります。未設定（""）のエリアは自動的に
+     メールでの予約リクエストにフォールバックします。
+     例: day1の"1500" → ¥3,500+¥1,500=¥5,000 のリンク */
+  paymentLinksWithDelivery: {
+    day1:  { "1500": "", "2000": "", "2500": "", "3000": "", "3500": "", "4000": "" },
+    week:  { "1500": "", "2000": "", "2500": "", "3000": "", "3500": "", "4000": "" },
+    month: { "1500": "", "2000": "", "2500": "", "3000": "", "3500": "", "4000": "" }
+  },
+
   /* ---- 配達（ホテル・指定場所への持込/引取）---- */
   delivery: {
     enabled: true,
+    /* エリア別配達料金（東京23区・1予約あたり・円）
+       区の追加や料金変更はこの表を編集するだけでOK。 */
+    areas: [
+      { fee: 1500, wards: [["世田谷区","Setagaya"]] },
+      { fee: 2000, wards: [["目黒区","Meguro"],["渋谷区","Shibuya"],["杉並区","Suginami"],["中野区","Nakano"]] },
+      { fee: 2500, wards: [["新宿区","Shinjuku"],["品川区","Shinagawa"],["大田区","Ota"]] },
+      { fee: 3000, wards: [["港区","Minato"],["練馬区","Nerima"],["板橋区","Itabashi"],["豊島区","Toshima"]] },
+      { fee: 3500, wards: [["千代田区","Chiyoda"],["中央区","Chuo"],["文京区","Bunkyo"]] },
+      { fee: 4000, wards: [["江東区","Koto"],["墨田区","Sumida"],["台東区","Taito"],["荒川区","Arakawa"],["北区","Kita"],["足立区","Adachi"],["葛飾区","Katsushika"],["江戸川区","Edogawa"]] }
+    ],
     note: {
-      ja: "ホテル・ご指定の場所へのお届け／引き取りも別途料金で承ります（エリア・料金はお問い合わせください）。",
-      en: "Delivery & pick-up to your hotel or a location of your choice is available for an extra fee (ask us for area & pricing).",
-      ko: "호텔·지정 장소로의 배송/회수도 별도 요금으로 가능합니다(지역·요금은 문의해 주세요).",
-      zh: "可另收费用配送/回收至酒店或指定地点（区域与费用请咨询）。"
+      ja: "東京23区内のホテル・ご指定場所へのお届け／引き取りに対応（1予約あたり・下記料金）。",
+      en: "Delivery & pick-up to hotels and locations across Tokyo's 23 wards (per booking, fees below).",
+      ko: "도쿄 23구 내 호텔·지정 장소로의 배송/회수에 대응합니다(1예약당·아래 요금).",
+      zh: "支持配送/回收至东京23区内的酒店或指定地点（每次预约·费用如下）。"
     }
   },
 
@@ -213,10 +242,10 @@ const OCTO_CONFIG = {
     },
     {
       q: { ja: "貸出・返却はどこで行いますか？", en: "Where do I pick up and return the bike?", ko: "대여·반납은 어디서 하나요?", zh: "在哪里取车和还车？" },
-      a: { ja: "世田谷区羽根木の倉庫（〒156-0042 羽根木1-29-13 第二羽根木コーポ103）です。ホテルやご指定場所へのお届け・引き取りも別途料金で承ります。",
-           en: "At our warehouse in Haneki, Setagaya (1-29-13 Haneki, #103). Hotel / custom-location delivery and pick-up is available for an extra fee.",
-           ko: "세타가야구 하네기의 창고(하네기 1-29-13, 103호)입니다. 호텔·지정 장소 배송/회수는 별도 요금으로 가능합니다.",
-           zh: "在世田谷区羽根木的仓库（羽根木1-29-13 103室）。酒店或指定地点的配送/回收可另行付费办理。" }
+      a: { ja: "〒156-0042 世田谷区羽根木1-29-13 第二羽根木コーポ103です。ホテルやご指定場所へのお届け・引き取りも別途料金で承ります。",
+           en: "At 1-29-13 Haneki, Setagaya-ku (#103 Dai-ni Haneki Corp). Hotel / custom-location delivery and pick-up is available for an extra fee.",
+           ko: "세타가야구 하네기 1-29-13(제2하네기 코포 103호)입니다. 호텔·지정 장소 배송/회수는 별도 요금으로 가능합니다.",
+           zh: "位于世田谷区羽根木1-29-13（第二羽根木公寓103）。酒店或指定地点的配送/回收可另行付费办理。" }
     },
     {
       q: { ja: "支払い方法は？", en: "How can I pay?", ko: "결제 방법은?", zh: "如何付款？" },

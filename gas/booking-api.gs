@@ -1,111 +1,117 @@
 /* =========================================================
-   OCTO BICYCLE — 予約・在庫管理API（Google Apps Script）
-   Googleスプレッドシートを「予約台帳」として使い、
-   サイトに残数表示＋予約の自動記録を追加します。
+   OCTO BICYCLE — 予約台帳API（Google Apps Script）
+   サイトの予約ボタン → このAPIが受信 → スプレッドシートに自動記録
+   ＋管理者(8octo.bicycle@gmail.com)へ通知 ＋ お客様へ自動返信
 
-   ◆設置手順（約10分・無料）は 設置手順書.md の
-   「在庫・空き状況管理のはじめかた」を参照してください。
+   ◆設置手順（約10分・無料）
+   1. 8octo.bicycle@gmail.com でログインし、Googleスプレッドシートを新規作成（例「OCTO予約台帳」）
+   2. メニュー「拡張機能」→「Apps Script」を開き、このファイルの中身を全部貼り付けて保存
+   3. 上部の関数選択で「setup」を選んで実行（初回のみ・権限を許可）
+   4. 「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」
+      - 実行ユーザー: 自分
+      - アクセスできるユーザー: 全員
+      → デプロイして表示された「ウェブアプリURL」をコピー
+   5. サイトの js/config.js の bookingApiUrl: "" にそのURLを貼る → アップロード
+   これで予約リクエストが自動で台帳に入ります。
 ========================================================= */
 
-// ★ サイト側 js/config.js の inventory と同じ数に合わせてください
-const INVENTORY = { cross: 3, mtb: 3 };  // ★実際の保有台数に合わせて変更
+/* ★ 解決法B用：script.google.com で直接プロジェクトを作る場合は、
+   台帳にしたいスプレッドシートのURLのうち
+   https://docs.google.com/spreadsheets/d/【この部分】/edit
+   をコピーして下に貼ってください。
+   スプレッドシートの「拡張機能→Apps Script」から開けた場合は空欄のままでOK。 */
+const SHEET_ID = "";
 
-// 予約シート名と通知先メール
-const SHEET_NAME = "予約台帳";
-const NOTIFY_EMAIL = "yuji19920508@gmail.com";  // 予約スプレッドシート管理用
+const SHEET_NAME   = "予約台帳";
+const NOTIFY_EMAIL = "8octo.bicycle@gmail.com";   // 管理者通知先（台帳アカウント）
+const REPLY_FROM_NAME = "OCTO BICYCLE";
 
-/* ---------- 初回セットアップ：メニューから1回だけ実行 ---------- */
+/* ---------- 初回セットアップ（1回だけ実行） ---------- */
 function setup() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = ss_();
   let sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) sh = ss.insertSheet(SHEET_NAME);
   if (sh.getLastRow() === 0) {
-    sh.appendRow(["予約ID", "受付日時", "利用日", "車種", "時間", "台数",
-                  "お名前", "メール", "言語", "金額", "状態", "メモ"]);
+    sh.appendRow(["予約ID", "受付日時", "開始日", "車種", "プラン", "台数",
+                  "配達", "お届けエリア", "配達料", "合計金額",
+                  "お名前", "連絡先", "言語", "状態", "メモ"]);
     sh.setFrozenRows(1);
-    // 状態列（K列）にプルダウン
     const rule = SpreadsheetApp.newDataValidation()
-      .requireValueInList(["仮予約", "決済済み", "貸出中", "返却済み", "キャンセル"], true)
+      .requireValueInList(["新規", "確認済み", "決済済み", "貸出中", "返却済み", "キャンセル"], true)
       .build();
-    sh.getRange("K2:K1000").setDataValidation(rule);
+    sh.getRange("N2:N2000").setDataValidation(rule);
+    sh.autoResizeColumns(1, 15);
   }
 }
 
-/* ---------- GET: 空き状況の返却 ----------
-   /exec?action=availability&date=YYYY-MM-DD                     */
-function doGet(e) {
-  const action = (e.parameter && e.parameter.action) || "";
-  if (action === "availability") {
-    return json_({ ok: true, remaining: remainingFor_(e.parameter.date) });
-  }
+/* ---------- GET: 動作確認用 ---------- */
+function doGet() {
   return json_({ ok: true, service: "octo-booking-api" });
 }
 
-/* ---------- POST: 予約の記録（サイトの予約ボタンから自動送信） ---------- */
+/* ---------- POST: 予約の記録（サイトから自動送信） ---------- */
 function doPost(e) {
   try {
     const d = JSON.parse(e.postData.contents);
     const sh = sheet_();
     const id = "OCTO-" + Utilities.formatDate(new Date(), "Asia/Tokyo", "yyMMdd-HHmmss");
-    sh.appendRow([id, new Date(), d.date, d.bike, d.duration, d.qty,
-                  d.name || "", d.email || "", d.lang || "", d.total || "", "仮予約", ""]);
-    // 店主へ通知メール
+    sh.appendRow([
+      id, new Date(), d.start || "", d.bike || "", d.plan || "", d.qty || 1,
+      d.delivery ? "あり" : "なし", d.area || "", d.fee || 0, d.total || "",
+      d.name || "", d.contact || "", d.lang || "", "新規", ""
+    ]);
+
+    // 管理者へ通知
     MailApp.sendEmail(
       NOTIFY_EMAIL,
-      "【新規予約】" + d.date + " " + d.bike + " ×" + d.qty + "（" + id + "）",
-      "サイトから新しい予約が入りました。\n\n" +
-      "予約ID: " + id + "\n利用日: " + d.date + "\n車種: " + d.bike +
-      "\n時間: " + d.duration + "\n台数: " + d.qty +
-      "\nお名前: " + (d.name || "未入力") + "\nメール: " + (d.email || "未入力") +
-      "\n金額: ¥" + d.total + "\n\n" +
-      "Stripeの決済通知メールと突き合わせて、台帳の状態を「決済済み」に変更してください。\n" +
-      "スプレッドシート: " + SpreadsheetApp.getActiveSpreadsheet().getUrl()
+      "【新規予約】" + (d.start || "日付未定") + " " + (d.bike || "") + " ×" + (d.qty || 1) + "（" + id + "）",
+      "サイトから新しい予約リクエストが入りました。\n\n" +
+      "予約ID: " + id +
+      "\n開始日: " + (d.start || "未入力") +
+      "\n車種: " + (d.bike || "") +
+      "\nプラン: " + (d.plan || "") +
+      "\n台数: " + (d.qty || 1) +
+      "\n配達: " + (d.delivery ? "あり（" + (d.area || "") + " +¥" + (d.fee || 0) + "）" : "なし") +
+      "\n合計: ¥" + (d.total || "") +
+      "\nお名前: " + (d.name || "未入力") +
+      "\n連絡先: " + (d.contact || "未入力") +
+      "\n言語: " + (d.lang || "") + "\n\n" +
+      "対応後、台帳の「状態」列を更新してください。\n" +
+      "台帳: " + ss_().getUrl()
     );
+
+    // 連絡先がメールならお客様へ自動返信（言語別）
+    if (/@/.test(d.contact || "")) {
+      const msgs = {
+        ja: { sub: "【OCTO BICYCLE】予約リクエストを受け付けました（" + id + "）",
+              body: d.name + " 様\n\nご予約リクエストありがとうございます。\n空き状況を確認のうえ、担当者よりご連絡いたします。\n\n受付番号: " + id + "\n開始日: " + d.start + "\n車種: " + d.bike + "\nプラン: " + d.plan + "\n台数: " + d.qty + "\n合計目安: ¥" + d.total + "\n\nOCTO BICYCLE\n〒156-0042 東京都世田谷区羽根木1-29-13 第二羽根木コーポ103" },
+        en: { sub: "[OCTO BICYCLE] Booking request received (" + id + ")",
+              body: "Dear " + d.name + ",\n\nThank you for your booking request. We will check availability and get back to you shortly.\n\nRequest ID: " + id + "\nStart date: " + d.start + "\nBike: " + d.bike + "\nPlan: " + d.plan + "\nQty: " + d.qty + "\nEstimated total: ¥" + d.total + "\n\nOCTO BICYCLE\n#103 Dai-ni Haneki Corp, 1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042" },
+        ko: { sub: "[OCTO BICYCLE] 예약 신청이 접수되었습니다 (" + id + ")",
+              body: d.name + " 님\n\n예약 신청 감사합니다. 예약 가능 여부를 확인한 후 연락드리겠습니다.\n\n접수번호: " + id + "\n시작일: " + d.start + "\n차종: " + d.bike + "\n플랜: " + d.plan + "\n대수: " + d.qty + "\n예상 합계: ¥" + d.total + "\n\nOCTO BICYCLE" },
+        zh: { sub: "[OCTO BICYCLE] 已收到您的预约申请（" + id + "）",
+              body: d.name + " 您好\n\n感谢您的预约申请。我们将确认车辆情况后尽快与您联系。\n\n受理编号: " + id + "\n开始日期: " + d.start + "\n车型: " + d.bike + "\n方案: " + d.plan + "\n台数: " + d.qty + "\n预计合计: ¥" + d.total + "\n\nOCTO BICYCLE" }
+      };
+      const msg = msgs[d.lang] || msgs.en;
+      MailApp.sendEmail(d.contact, msg.sub, msg.body, { name: REPLY_FROM_NAME });
+    }
+
     return json_({ ok: true, id: id });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   }
 }
 
-/* ---------- 残数計算 ----------
-   ・「キャンセル」以外の行を予約中としてカウント
-   ・1泊2日（2d）は利用日と翌日の2日分の在庫を使用          */
-function remainingFor_(dateStr) {
-  const used = { ebike: 0, cruiser: 0, city: 0 };
-  const rows = sheet_().getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    const rDate = toYmd_(r[2]);
-    const bike = String(r[3]);
-    const dur = String(r[4]);
-    const qty = Number(r[5]) || 0;
-    const status = String(r[10]);
-    if (!rDate || status === "キャンセル" || !(bike in used)) continue;
-    const occupies = (rDate === dateStr) ||
-                     (dur === "2d" && nextDay_(rDate) === dateStr);
-    if (occupies) used[bike] += qty;
-  }
-  const remaining = {};
-  Object.keys(INVENTORY).forEach(function (k) {
-    remaining[k] = Math.max(0, INVENTORY[k] - used[k]);
-  });
-  return remaining;
-}
-
 /* ---------- ヘルパー ---------- */
+function ss_() {
+  return SHEET_ID
+    ? SpreadsheetApp.openById(SHEET_ID)
+    : SpreadsheetApp.getActiveSpreadsheet();
+}
 function sheet_() {
-  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const sh = ss_().getSheetByName(SHEET_NAME);
   if (!sh) throw new Error("先に setup() を実行してください");
   return sh;
-}
-function toYmd_(v) {
-  if (v instanceof Date) return Utilities.formatDate(v, "Asia/Tokyo", "yyyy-MM-dd");
-  return String(v || "").slice(0, 10);
-}
-function nextDay_(ymd) {
-  const d = new Date(ymd + "T00:00:00+09:00");
-  d.setDate(d.getDate() + 1);
-  return Utilities.formatDate(d, "Asia/Tokyo", "yyyy-MM-dd");
 }
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))

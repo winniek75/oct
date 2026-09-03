@@ -60,7 +60,7 @@
       el.href = "mailto:" + C.customerEmail;
     });
     const addr = document.getElementById("addr");
-    if (addr) addr.textContent = (lang === "ja" ? "〒" + C.location.postal + " " : "") + tx(C.location.address);
+    if (addr) addr.textContent = tx(C.location.address);
     const closed = document.getElementById("closedDays");
     if (closed) closed.textContent = tx(C.location.closedDays);
     const locNote = document.getElementById("locNote");
@@ -71,6 +71,14 @@
     if (mapFrame && !mapFrame.src) mapFrame.src = "https://www.google.com/maps?q=" + encodeURIComponent(C.location.mapQuery) + "&output=embed";
     const delNote = document.getElementById("deliveryNote");
     if (delNote) delNote.textContent = tx(C.delivery.note);
+    const feeTable = document.getElementById("deliveryFees");
+    if (feeTable) {
+      feeTable.innerHTML = C.delivery.areas.map((tier) => `
+        <div class="dfee-row">
+          <span class="dfee-wards">${tier.wards.map(([ja, en]) => `${ja}<i>${en}</i>`).join("・")}</span>
+          <span class="dfee-price">${yen(tier.fee)}</span>
+        </div>`).join("");
+    }
 
     // 料金表
     const P = C.pricing;
@@ -165,6 +173,16 @@
       bikeSel.innerHTML = C.bikes.map((b) => `<option value="${b.id}">${tx(b.name)}</option>`).join("");
       if (cur) bikeSel.value = cur;
     }
+    const areaSel = $("bkArea");
+    if (areaSel) {
+      const cur = areaSel.value;
+      areaSel.innerHTML = C.delivery.areas.map((tier) =>
+        tier.wards.map(([ja, en]) =>
+          `<option value="${tier.fee}" data-ward="${ja} (${en})">${ja} / ${en}（+${yen(tier.fee)}）</option>`
+        ).join("")
+      ).join("");
+      if (cur) areaSel.value = cur;
+    }
     const planSel = $("bkPlan");
     if (planSel) {
       const cur = planSel.value || "days";
@@ -181,6 +199,7 @@
     const P = C.pricing;
     const plan = $("bkPlan").value;
     const qty = Math.max(1, parseInt($("bkQty").value || "1", 10));
+    const wantsDelivery = $("bkDelivery") && $("bkDelivery").checked;
     let unit, days = 1;
     if (plan === "week") unit = P.week;
     else if (plan === "month") unit = P.month;
@@ -188,53 +207,129 @@
       days = Math.min(6, Math.max(1, parseInt($("bkDays").value || "1", 10)));
       unit = P.day1 + (days - 1) * P.dayExtra;
     }
-    return { plan, qty, days, unit, total: unit * qty };
+    let fee = 0, ward = "";
+    const areaSel = $("bkArea");
+    if (wantsDelivery && areaSel && areaSel.selectedOptions[0]) {
+      fee = parseInt(areaSel.value, 10) || 0;
+      ward = areaSel.selectedOptions[0].dataset.ward || "";
+    }
+    const total = unit * qty + fee;   // 配達料は1予約につき1回
+    return { plan, qty, days, unit, total, wantsDelivery, fee, ward };
   }
 
   function updateBooking() {
     const r = calcTotal();
     $("bkDaysWrap").hidden = r.plan !== "days";
+    $("bkAreaWrap").hidden = !r.wantsDelivery;
     $("bkTotal").textContent = yen(r.total);
     $("bkWeekHint").hidden = !(r.plan === "days" && r.unit >= C.pricing.week);
-    // 決済ボタン：固定料金プラン & Stripeリンク設定時のみ
+
+    /* 決済ボタンの制御：
+       - 配達なし → 通常のStripeリンク
+       - 配達あり → 選択エリアの料金帯に対応した配達込みリンク
+       - 該当リンク未設定 → 即時決済を隠し、リクエスト送信に誘導 */
     const linkKey = r.plan === "days" ? (r.days === 1 ? "day1" : null) : r.plan;
-    const payUrl = linkKey ? C.paymentLinks[linkKey] : "";
+    let payUrl = "";
+    if (linkKey) {
+      if (!r.wantsDelivery) payUrl = C.paymentLinks[linkKey] || "";
+      else payUrl = (C.paymentLinksWithDelivery[linkKey] || {})[String(r.fee)] || "";
+    }
     const payBtn = $("bkPay");
     if (payBtn) {
       payBtn.hidden = !payUrl;
       if (payUrl) payBtn.href = payUrl;
     }
+    const dHint = $("bkDeliveryHint");
+    if (dHint) dHint.hidden = !(r.wantsDelivery && !payUrl);
   }
 
-  function sendBookingMail() {
+  function bookingData() {
     const r = calcTotal();
     const bike = C.bikes.find((b) => b.id === $("bkBike").value) || C.bikes[0];
     const planLabel =
       r.plan === "week" ? t("book.plan.week") :
       r.plan === "month" ? t("book.plan.month") :
       r.days + " " + t("book.daysUnit");
+    return {
+      r, bike, planLabel,
+      payload: {
+        start: $("bkStart").value || "",
+        bike: tx(bike.name),
+        plan: planLabel,
+        qty: r.qty,
+        delivery: r.wantsDelivery,
+        area: r.ward,
+        fee: r.fee,
+        total: r.total,
+        name: $("bkName").value.trim(),
+        contact: $("bkContact").value.trim(),
+        lang: lang
+      }
+    };
+  }
+
+  function sendBookingMail() {
+    const { r, planLabel, bike, payload } = bookingData();
     const body = t("mail.body")
       .replace("{bike}", tx(bike.name))
       .replace("{plan}", planLabel)
-      .replace("{start}", $("bkStart").value || "-")
+      .replace("{start}", payload.start || "-")
       .replace("{qty}", String(r.qty))
-      .replace("{delivery}", $("bkDelivery").checked ? "YES" : "NO")
-      .replace("{total}", yen(r.total));
+      .replace("{delivery}", r.wantsDelivery ? "YES - " + r.ward + " (+" + yen(r.fee) + ")" : "NO")
+      .replace("{total}", yen(r.total))
+      .replace("お名前：", "お名前：" + payload.name)
+      .replace("Name:", "Name: " + payload.name);
     location.href = "mailto:" + C.customerEmail +
       "?subject=" + encodeURIComponent(t("mail.subject")) +
       "&body=" + encodeURIComponent(body);
   }
 
+  async function submitBooking() {
+    const doneEl = $("bkDone"), errEl = $("bkErr");
+    doneEl.hidden = true; errEl.hidden = true;
+
+    // APIが未設定なら従来のメール方式
+    if (!C.bookingApiUrl) { sendBookingMail(); return; }
+
+    const { payload } = bookingData();
+    // 台帳に必要な最低限の入力チェック
+    if (!payload.name || !payload.contact || !payload.start) {
+      errEl.textContent = t("book.needInfo");
+      errEl.hidden = false;
+      return;
+    }
+    const btn = $("bkSubmit");
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = t("book.sending");
+    try {
+      // Content-Typeを付けないtext/plain送信（GASのCORS制約回避の定石）
+      const res = await fetch(C.bookingApiUrl, { method: "POST", body: JSON.stringify(payload) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || "api error");
+      doneEl.textContent = t("book.done").replace("{id}", out.id || "");
+      doneEl.hidden = false;
+      btn.textContent = original;
+    } catch (err) {
+      // API失敗時はメール方式に自動フォールバック
+      errEl.hidden = false;
+      btn.textContent = original;
+      setTimeout(sendBookingMail, 1200);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   function initBooking() {
     if (!$("bkPlan")) return;
-    ["bkPlan", "bkDays", "bkQty", "bkBike"].forEach((id) => {
+    ["bkPlan", "bkDays", "bkQty", "bkBike", "bkDelivery", "bkArea"].forEach((id) => {
       const el = $(id);
       el && el.addEventListener("input", updateBooking);
       el && el.addEventListener("change", updateBooking);
     });
     const start = $("bkStart");
     if (start) start.min = new Date().toISOString().slice(0, 10);
-    $("bkSubmit").addEventListener("click", sendBookingMail);
+    $("bkSubmit").addEventListener("click", submitBooking);
   }
 
   /* ---------- 演出：ヘッダー変化・スクロール出現・動画 ---------- */

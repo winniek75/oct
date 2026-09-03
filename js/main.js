@@ -1,469 +1,308 @@
-/* ===== OCTO BICYCLE RENTAL — main.js ===== */
+/* =========================================================
+   OCTO BICYCLE — main.js
+   言語切替 / 動的レンダリング / 予約ウィジェット
+   （通常このファイルを編集する必要はありません。設定は js/config.js へ）
+========================================================= */
 (function () {
-  const LANGS = ["ja", "en", "ko", "zh"];
-  let lang = detectLang();
+  const C = OCTO_CONFIG;
+  const yen = (n) => "¥" + Number(n).toLocaleString("ja-JP");
 
-  /* ---------- 言語判定：?lang= → 保存済み → ブラウザ言語 ---------- */
+  /* ---------- 言語 ---------- */
+  const LANGS = ["ja", "en", "ko", "zh"];
   function detectLang() {
     const p = new URLSearchParams(location.search).get("lang");
     if (LANGS.includes(p)) return p;
-    try {
-      const s = localStorage.getItem("octo_lang");
-      if (LANGS.includes(s)) return s;
-    } catch (e) {}
-    const b = (navigator.language || "en").slice(0, 2);
-    return LANGS.includes(b) ? b : "en";
+    const saved = localStorage.getItem("octo_lang");
+    if (LANGS.includes(saved)) return saved;
+    const nav = (navigator.language || "ja").toLowerCase();
+    if (nav.startsWith("ja")) return "ja";
+    if (nav.startsWith("ko")) return "ko";
+    if (nav.startsWith("zh")) return "zh";
+    return "en";
   }
+  let lang = detectLang();
 
-  function t(key) {
-    return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || "";
-  }
+  const t = (key) => (OCTO_I18N[lang] && OCTO_I18N[lang][key]) || OCTO_I18N.ja[key] || key;
+  const tx = (obj) => (obj && (obj[lang] || obj.ja)) || "";
 
-  /* ---------- 翻訳の適用 ---------- */
-  function applyLang() {
-    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
-    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+  function applyI18n() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
       el.textContent = t(el.getAttribute("data-i18n"));
     });
-    document.title = t("meta.title");
-    const md = document.querySelector('meta[name="description"]');
-    if (md) md.setAttribute("content", t("meta.desc"));
-    document.querySelectorAll(".lang-switch button").forEach(function (b) {
-      b.classList.toggle("active", b.dataset.lang === lang);
+    document.querySelectorAll(".lang-btn").forEach((b) => {
+      b.classList.toggle("is-active", b.dataset.lang === lang);
     });
-    renderFleet();
-    renderBikeOptions();
-    updateTotal();
-    renderPlans();
-    renderReviews();
-    renderJournal();
-    applyExtras();
-    refreshAvailability();
-    try { localStorage.setItem("octo_lang", lang); } catch (e) {}
   }
 
-  document.querySelectorAll(".lang-switch button").forEach(function (b) {
-    b.addEventListener("click", function () {
-      lang = b.dataset.lang;
-      const url = new URL(location.href);
-      url.searchParams.set("lang", lang);
-      history.replaceState(null, "", url);
-      applyLang();
-    });
-  });
+  function setLang(next) {
+    lang = next;
+    localStorage.setItem("octo_lang", next);
+    const url = new URL(location);
+    url.searchParams.set("lang", next);
+    history.replaceState(null, "", url);
+    applyI18n();
+    renderAll();
+  }
 
-  /* ---------- モバイルメニュー ---------- */
-  const toggle = document.querySelector(".nav-toggle");
-  const nav = document.querySelector(".main-nav");
-  if (toggle) toggle.addEventListener("click", function () { nav.classList.toggle("open"); });
-  nav.addEventListener("click", function () { nav.classList.remove("open"); });
+  document.querySelectorAll(".lang-btn").forEach((b) =>
+    b.addEventListener("click", () => setLang(b.dataset.lang))
+  );
 
-  /* ---------- 車両：エディトリアル型の互い違いレイアウト ---------- */
-  function renderFleet() {
-    const grid = document.getElementById("fleet-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
-    OCTO_CONFIG.bikes.forEach(function (bike) {
-      const row = document.createElement("article");
-      row.className = "fleet-row";
-      row.innerHTML =
-        '<div class="fr-media"><div class="fr-clip reveal-img"><img src="' + bike.img + '" alt="' + bike.name.en + '" loading="lazy" onerror="this.src=\'images/placeholder.svg\'"></div>' +
-        '<span class="fr-price">¥' + bike.price["3h"].toLocaleString() + "<small>" + t("fleet.from") + "</small></span></div>" +
-        '<div class="fr-body reveal">' +
-        '<p class="fr-tag">' + bike.tag[lang] + "</p>" +
-        "<h3>" + bike.name[lang] + "</h3>" +
-        '<p class="fr-desc">' + bike.desc[lang] + "</p>" +
-        '<button class="link-arrow" data-bike="' + bike.id + '"><span>' + t("fleet.select") + "</span><i>→</i></button>" +
-        "</div>";
-      grid.appendChild(row);
+  /* ---------- 静的データ流し込み ---------- */
+  function renderStatic() {
+    // 連絡先・住所
+    document.querySelectorAll("[data-email]").forEach((el) => {
+      el.textContent = C.customerEmail;
+      if (el.tagName === "A") el.href = "mailto:" + C.customerEmail;
     });
-    grid.querySelectorAll("button[data-bike]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        document.getElementById("bk-bike").value = btn.dataset.bike;
-        refreshAvailability();
-        document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
-      });
+    document.querySelectorAll("[data-email-href]").forEach((el) => {
+      el.href = "mailto:" + C.customerEmail;
     });
-    observeReveals(grid);
+    const addr = document.getElementById("addr");
+    if (addr) addr.textContent = (lang === "ja" ? "〒" + C.location.postal + " " : "") + tx(C.location.address);
+    const closed = document.getElementById("closedDays");
+    if (closed) closed.textContent = tx(C.location.closedDays);
+    const locNote = document.getElementById("locNote");
+    if (locNote) locNote.textContent = tx(C.location.note);
+    const mapLink = document.getElementById("mapLink");
+    if (mapLink) mapLink.href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(C.location.mapQuery);
+    const mapFrame = document.getElementById("mapFrame");
+    if (mapFrame && !mapFrame.src) mapFrame.src = "https://www.google.com/maps?q=" + encodeURIComponent(C.location.mapQuery) + "&output=embed";
+    const delNote = document.getElementById("deliveryNote");
+    if (delNote) delNote.textContent = tx(C.delivery.note);
+
+    // 料金表
+    const P = C.pricing;
+    setText("priceDay", yen(P.day1));
+    setText("priceDayNote", t("pricing.dayNote"));
+    setText("priceWeek", yen(P.week));
+    setText("priceMonth", yen(P.month));
+
+    // SNSリンク
+    linkOrHide("lnkInsta", C.links.instagram);
+    linkOrHide("lnkReview", C.links.googleReview);
+    linkOrHide("lineFab", C.links.line);
+    linkOrHide("lnkLineContact", C.links.line);
+    linkOrHide("footInsta", C.links.instagram);
+    linkOrHide("footReview", C.links.googleReview);
+    linkOrHide("footLine", C.links.line);
+  }
+  function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function linkOrHide(id, url) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (url) { el.href = url; el.hidden = false; } else { el.hidden = true; }
+  }
+
+  /* ---------- 車種カード ---------- */
+  function renderBikes() {
+    const wrap = document.getElementById("bikeCards");
+    if (!wrap) return;
+    wrap.innerHTML = C.bikes.map((b) => `
+      <article class="bike-card">
+        <div class="bike-photo"><img src="${b.img}" alt="${tx(b.name)}" loading="lazy"></div>
+        <div class="bike-body">
+          <p class="bike-tag">${tx(b.tag)}</p>
+          <h3>${tx(b.name)}</h3>
+          <p class="bike-desc">${tx(b.desc)}</p>
+        </div>
+      </article>`).join("");
+  }
+
+  /* ---------- 事業内容 ---------- */
+  const ICONS = {
+    cart: "M4 5h2l2.4 10.2a2 2 0 0 0 2 1.6h6.9a2 2 0 0 0 2-1.5L21 8H7",
+    bike: "M5 17a3.5 3.5 0 1 0 0 .01M19 17a3.5 3.5 0 1 0 0 .01M5 17l4-8h5l3 8M9 9h6l-2-3h-3",
+    wrench: "M14.5 6.5a4 4 0 0 0-5.4 5L4 16.6 6.4 19l5.1-5.1a4 4 0 0 0 5-5.4l-2.6 2.6-2-2z",
+    gear: "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8 4l2-1-1-3-2.2.4a8 8 0 0 0-1.5-1.5L17.7 4l-3-1-1 2a8 8 0 0 0-2.2 0l-1-2-3 1 .4 2.2A8 8 0 0 0 5.4 8L3 7.6l-1 3 2 1",
+    recycle: "M7 19h7l-1.5 2M7 19l3-5m7 5l-3.5-6M17 19h2.5L21 16l-2-3.5m-3-1L14 8l2.5-1.5M14 8l-2-3.5h-3L7.5 8l3 1.5",
+    truck: "M3 7h11v8H3zM14 10h4l3 3v2h-7zM7 18a1.5 1.5 0 1 0 0 .01M17 18a1.5 1.5 0 1 0 0 .01",
+    building: "M4 21V5l7-2v18M11 21h9V9l-5-1.5M7 8h.01M7 12h.01M7 16h.01M15 12h.01M15 16h.01",
+    chat: "M4 5h16v11H9l-4 4V5z"
+  };
+  function renderServices() {
+    const wrap = document.getElementById("serviceList");
+    if (!wrap) return;
+    wrap.innerHTML = C.services.map((s, idx) => `
+      <article class="svc" id="svc-${s.id}">
+        <div class="svc-photo">
+          <img src="${s.photo}" alt="${tx(s.name)}" loading="lazy">
+          <span class="svc-num">${String(idx + 1).padStart(2, "0")}</span>
+          <span class="svc-latin">${s.latin || ""}</span>
+        </div>
+        <div class="svc-body">
+          <h3><span class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${ICONS[s.icon] || ICONS.chat}"/></svg></span>${tx(s.name)}</h3>
+          <p>${tx(s.desc)}</p>
+          <p class="svc-more">${
+            s.links
+              ? s.links.map((l) => `<a href="${l.url}">${tx(l.label)}</a>`).join(" ／ ")
+              : (C.links.line ? `<a href="${C.links.line}" target="_blank" rel="noopener" class="svc-line">${t("svc.line")}</a>` : "")
+          }</p>
+        </div>
+      </article>`).join("");
+    setText("servicesClosing", tx(C.servicesClosing));
+  }
+
+  /* ---------- FAQ ---------- */
+  function renderFaq() {
+    const wrap = document.getElementById("faqList");
+    if (!wrap) return;
+    wrap.innerHTML = C.faq.map((f) => `
+      <details class="faq-item">
+        <summary>${tx(f.q)}</summary>
+        <p>${tx(f.a)}</p>
+      </details>`).join("");
   }
 
   /* ---------- 予約ウィジェット ---------- */
-  const selBike = document.getElementById("bk-bike");
-  const selDur = document.getElementById("bk-duration");
-  const selQty = document.getElementById("bk-qty");
-  const inpDate = document.getElementById("bk-date");
-  const elTotal = document.getElementById("bk-total");
-  const inpName = document.getElementById("bk-name");
-  const inpEmail = document.getElementById("bk-email");
-  const elAvail = document.getElementById("bk-avail");
-  const btnPay = document.getElementById("bk-pay");
-  let remainingCache = null; // {ebike:n,...} 選択日の残数
+  const $ = (id) => document.getElementById(id);
 
-  function renderBikeOptions() {
-    const current = selBike.value;
-    selBike.innerHTML = "";
-    OCTO_CONFIG.bikes.forEach(function (bike) {
-      const o = document.createElement("option");
-      o.value = bike.id;
-      o.textContent = bike.name[lang];
-      selBike.appendChild(o);
+  function renderBookingOptions() {
+    const bikeSel = $("bkBike");
+    if (bikeSel) {
+      const cur = bikeSel.value;
+      bikeSel.innerHTML = C.bikes.map((b) => `<option value="${b.id}">${tx(b.name)}</option>`).join("");
+      if (cur) bikeSel.value = cur;
+    }
+    const planSel = $("bkPlan");
+    if (planSel) {
+      const cur = planSel.value || "days";
+      planSel.innerHTML = `
+        <option value="days">${t("book.plan.days")}</option>
+        <option value="week">${t("book.plan.week")} — ${yen(C.pricing.week)}</option>
+        <option value="month">${t("book.plan.month")} — ${yen(C.pricing.month)}</option>`;
+      planSel.value = cur;
+    }
+    updateBooking();
+  }
+
+  function calcTotal() {
+    const P = C.pricing;
+    const plan = $("bkPlan").value;
+    const qty = Math.max(1, parseInt($("bkQty").value || "1", 10));
+    let unit, days = 1;
+    if (plan === "week") unit = P.week;
+    else if (plan === "month") unit = P.month;
+    else {
+      days = Math.min(6, Math.max(1, parseInt($("bkDays").value || "1", 10)));
+      unit = P.day1 + (days - 1) * P.dayExtra;
+    }
+    return { plan, qty, days, unit, total: unit * qty };
+  }
+
+  function updateBooking() {
+    const r = calcTotal();
+    $("bkDaysWrap").hidden = r.plan !== "days";
+    $("bkTotal").textContent = yen(r.total);
+    $("bkWeekHint").hidden = !(r.plan === "days" && r.unit >= C.pricing.week);
+    // 決済ボタン：固定料金プラン & Stripeリンク設定時のみ
+    const linkKey = r.plan === "days" ? (r.days === 1 ? "day1" : null) : r.plan;
+    const payUrl = linkKey ? C.paymentLinks[linkKey] : "";
+    const payBtn = $("bkPay");
+    if (payBtn) {
+      payBtn.hidden = !payUrl;
+      if (payUrl) payBtn.href = payUrl;
+    }
+  }
+
+  function sendBookingMail() {
+    const r = calcTotal();
+    const bike = C.bikes.find((b) => b.id === $("bkBike").value) || C.bikes[0];
+    const planLabel =
+      r.plan === "week" ? t("book.plan.week") :
+      r.plan === "month" ? t("book.plan.month") :
+      r.days + " " + t("book.daysUnit");
+    const body = t("mail.body")
+      .replace("{bike}", tx(bike.name))
+      .replace("{plan}", planLabel)
+      .replace("{start}", $("bkStart").value || "-")
+      .replace("{qty}", String(r.qty))
+      .replace("{delivery}", $("bkDelivery").checked ? "YES" : "NO")
+      .replace("{total}", yen(r.total));
+    location.href = "mailto:" + C.customerEmail +
+      "?subject=" + encodeURIComponent(t("mail.subject")) +
+      "&body=" + encodeURIComponent(body);
+  }
+
+  function initBooking() {
+    if (!$("bkPlan")) return;
+    ["bkPlan", "bkDays", "bkQty", "bkBike"].forEach((id) => {
+      const el = $(id);
+      el && el.addEventListener("input", updateBooking);
+      el && el.addEventListener("change", updateBooking);
     });
-    if (current) selBike.value = current;
+    const start = $("bkStart");
+    if (start) start.min = new Date().toISOString().slice(0, 10);
+    $("bkSubmit").addEventListener("click", sendBookingMail);
   }
 
-  function currentPrice() {
-    const bike = OCTO_CONFIG.bikes.find(function (b) { return b.id === selBike.value; });
-    if (!bike) return 0;
-    return bike.price[selDur.value] * parseInt(selQty.value, 10);
-  }
-
-  function updateTotal() {
-    elTotal.textContent = "¥" + currentPrice().toLocaleString();
-  }
-
-  [selBike, selDur, selQty].forEach(function (el) {
-    el.addEventListener("change", updateTotal);
-  });
-
-  // 今日の日付を最小値に
-  const today = new Date().toISOString().split("T")[0];
-  inpDate.min = today;
-  inpDate.value = today;
-
-
-  /* ---------- 空き状況エンジン ----------
-     ローカルモード: inventory − blackoutDates/定休日 のみで判定
-     APIモード(availabilityApi設定時): GASから当日の残数を取得して表示 ---------- */
-  function fmtDate(d) { return d; } // input[type=date] は既に YYYY-MM-DD
-
-  function isClosed(dateStr) {
-    if (!dateStr) return false;
-    const d = new Date(dateStr + "T00:00:00");
-    if ((OCTO_CONFIG.closedDays || []).indexOf(d.getDay()) !== -1) return "closed";
-    if ((OCTO_CONFIG.blackoutDates || []).indexOf(dateStr) !== -1) return "blackout";
-    return false;
-  }
-
-  function setAvail(state, n) {
-    if (!elAvail) return;
-    elAvail.hidden = false;
-    elAvail.className = "bk-avail " + state;
-    if (state === "ok")       elAvail.textContent = "◯ " + t("avail.ok").replace("{n}", n);
-    else if (state === "low") elAvail.textContent = "△ " + t("avail.ok").replace("{n}", n);
-    else if (state === "none") elAvail.textContent = "× " + t("avail.none");
-    else if (state === "closed") elAvail.textContent = "× " + t("avail.closed");
-    else if (state === "checking") elAvail.textContent = "… " + t("avail.checking");
-    else if (state === "error") elAvail.textContent = t("avail.error");
-    const blocked = (state === "none" || state === "closed");
-    btnPay.disabled = blocked;
-    btnPay.style.opacity = blocked ? ".45" : "";
-    btnPay.style.cursor = blocked ? "not-allowed" : "";
-  }
-
-  function rebuildQty(max) {
-    const cap = Math.max(0, Math.min(5, max));
-    const cur = parseInt(selQty.value, 10) || 1;
-    selQty.innerHTML = "";
-    for (let i = 1; i <= Math.max(1, cap); i++) {
-      const o = document.createElement("option");
-      o.value = o.textContent = i;
-      selQty.appendChild(o);
-    }
-    selQty.value = Math.min(cur, Math.max(1, cap));
-  }
-
-  function refreshAvailability() {
-    const dateStr = inpDate.value;
-    const closed = isClosed(dateStr);
-    if (closed) { remainingCache = null; setAvail("closed"); return; }
-
-    const api = OCTO_CONFIG.availabilityApi;
-    if (!api) {
-      // ローカルモード：保有台数を上限として表示
-      const inv = OCTO_CONFIG.inventory || {};
-      const n = inv[selBike.value] || 0;
-      remainingCache = inv;
-      rebuildQty(n);
-      setAvail(n === 0 ? "none" : (n <= 1 ? "low" : "ok"), n);
-      updateTotal();
-      return;
-    }
-    // APIモード
-    setAvail("checking");
-    fetch(api + "?action=availability&date=" + encodeURIComponent(dateStr))
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        remainingCache = res.remaining || {};
-        const n = remainingCache[selBike.value];
-        rebuildQty(typeof n === "number" ? n : 5);
-        if (typeof n !== "number") { setAvail("error"); return; }
-        setAvail(n === 0 ? "none" : (n <= 1 ? "low" : "ok"), n);
-        updateTotal();
-      })
-      .catch(function () { remainingCache = null; setAvail("error"); });
-  }
-
-  inpDate.addEventListener("change", refreshAvailability);
-  selBike.addEventListener("change", refreshAvailability);
-
-  /* ---------- 予約をGASに記録（APIモード時） ---------- */
-  function recordBooking(payload) {
-    const api = OCTO_CONFIG.availabilityApi;
-    if (!api) return Promise.resolve({ ok: true });
-    return fetch(api, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // preflight回避
-      body: JSON.stringify(payload)
-    }).then(function (r) { return r.json(); });
-  }
-
-  /* ---------- 決済ボタン：Stripe Payment Link → 無ければメール仮予約 ---------- */
-  document.getElementById("bk-pay").addEventListener("click", function () {
-    const dateStr = inpDate.value;
-    if (isClosed(dateStr)) { refreshAvailability(); return; }
-    // APIモードでは残数を最終チェック
-    if (OCTO_CONFIG.availabilityApi && remainingCache) {
-      const n = remainingCache[selBike.value];
-      if (typeof n === "number" && parseInt(selQty.value, 10) > n) { refreshAvailability(); return; }
-    }
-    // APIモードではメール必須（予約記録・連絡用）
-    if (OCTO_CONFIG.availabilityApi && !(inpEmail.value && inpEmail.checkValidity())) {
-      inpEmail.focus(); inpEmail.style.borderColor = "#e5484d";
-      return;
-    }
-
-    const key = selBike.value + "_" + selDur.value;
-    const link = OCTO_CONFIG.paymentLinks[key];
-    const bike = OCTO_CONFIG.bikes.find(function (b) { return b.id === selBike.value; });
-    const summary =
-      "\n- " + t("book.bike") + ": " + bike.name[lang] +
-      "\n- " + t("book.date") + ": " + dateStr +
-      "\n- " + t("book.duration") + ": " + selDur.options[selDur.selectedIndex].text +
-      "\n- " + t("book.qty") + ": " + selQty.value +
-      "\n- " + t("book.total") + ": ¥" + currentPrice().toLocaleString() +
-      (inpName.value ? "\n- Name: " + inpName.value : "") +
-      (inpEmail.value ? "\n- Email: " + inpEmail.value : "");
-
-    const payload = {
-      date: dateStr, bike: selBike.value, duration: selDur.value,
-      qty: parseInt(selQty.value, 10), name: inpName.value, email: inpEmail.value,
-      lang: lang, total: currentPrice()
+  /* ---------- 演出：ヘッダー変化・スクロール出現・動画 ---------- */
+  function initEffects() {
+    document.body.classList.add("home");
+    const header = document.querySelector("header.site");
+    const onScroll = () => {
+      const top = window.scrollY < 40;
+      header.classList.toggle("at-top", top);
+      header.classList.toggle("scrolled", !top);
     };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
 
-    btnPay.disabled = true;
-    const orig = btnPay.textContent;
-    btnPay.textContent = "…";
-
-    recordBooking(payload)
-      .catch(function () { /* 記録失敗でも決済へは進める（メール通知でカバー） */ })
-      .then(function (res) {
-        const bookingId = (res && res.id) || (selBike.value + "-" + dateStr + "-" + selDur.value + "x" + selQty.value);
-        if (link) {
-          const url = new URL(link);
-          url.searchParams.set("client_reference_id", String(bookingId).slice(0, 200));
-          if (inpEmail.value) url.searchParams.set("prefilled_email", inpEmail.value);
-          location.href = url.toString();
-        } else {
-          location.href = "mailto:" + OCTO_CONFIG.contactEmail +
-            "?subject=" + encodeURIComponent(t("book.mailSubject") + (res && res.id ? " [" + res.id + "]" : "")) +
-            "&body=" + encodeURIComponent(t("book.mailBody") + summary);
-          btnPay.disabled = false;
-          btnPay.textContent = orig;
-        }
-      });
-  });
-
-  /* ---------- ライドプラン：フルワイドのマガジンバンド ---------- */
-  function renderPlans() {
-    const grid = document.getElementById("plans-grid");
-    if (!grid || !OCTO_CONFIG.plans) return;
-    grid.innerHTML = "";
-    OCTO_CONFIG.plans.forEach(function (p) {
-      const band = document.createElement("article");
-      band.className = "plan-band reveal-img";
-      const badge = p.badge ? '<span class="plan-badge">' + p.badge[lang] + "</span>" : "";
-      const chips = (p.chips[lang] || []).join('<span class="dot">・</span>');
-      band.innerHTML =
-        '<div class="pb-media"><img src="' + p.img + '" alt="' + p.name.en + '" loading="lazy" onerror="this.src=\'images/placeholder.svg\'"></div>' +
-        '<div class="pb-content">' + badge +
-        "<h3>" + p.name[lang] + "</h3>" +
-        '<p class="pb-desc">' + p.desc[lang] + "</p>" +
-        '<p class="pb-chips">' + chips + "</p>" +
-        '<button class="link-arrow light" data-plan="' + p.id + '"><span>' + t("plans.use") + "</span><i>→</i></button>" +
-        "</div>";
-      grid.appendChild(band);
-    });
-    grid.querySelectorAll("button[data-plan]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const p = OCTO_CONFIG.plans.find(function (x) { return x.id === btn.dataset.plan; });
-        if (p && p.recommend) {
-          if (p.recommend.bike) document.getElementById("bk-bike").value = p.recommend.bike;
-          if (p.recommend.duration) document.getElementById("bk-duration").value = p.recommend.duration;
-          refreshAvailability();
-        }
-        document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
-      });
-    });
-    observeReveals(grid);
-  }
-
-  /* ---------- お客様の声：枠なしプルクォート ---------- */
-  function renderReviews() {
-    const sec = document.getElementById("reviews");
-    const grid = document.getElementById("reviews-grid");
-    if (!sec || !grid) return;
-    const list = OCTO_CONFIG.reviews || [];
-    if (!list.length) { sec.hidden = true; return; }
-    sec.hidden = false;
-    grid.innerHTML = "";
-    list.forEach(function (r) {
-      const el = document.createElement("figure");
-      el.className = "review-quote reveal";
-      const text = typeof r.text === "string" ? r.text : (r.text[lang] || r.text.en);
-      const sampleTag = r.sample ? '<span class="rv-sample">' + t("rv.sample") + "</span>" : "";
-      el.innerHTML = sampleTag +
-        "<blockquote>" + text + "</blockquote>" +
-        "<figcaption>" + (r.flag || "") + " " + r.name + (r.source ? ' <span class="rv-src">— ' + r.source + "</span>" : "") + "</figcaption>";
-      grid.appendChild(el);
-    });
-    observeReveals(grid);
-  }
-
-  /* ---------- 機能スイッチ・リンクの適用 ---------- */
-  function applyExtras() {
-    const f = OCTO_CONFIG.features || {};
-    const L = OCTO_CONFIG.links || {};
-
-    // 公式サイト特典バッジ
-    const promo = document.getElementById("ticket-promo");
-    if (promo) {
-      const txt = OCTO_CONFIG.promo && OCTO_CONFIG.promo[lang];
-      promo.hidden = !(f.promoBanner && txt);
-      if (txt) document.getElementById("ticket-promo-text").textContent = txt;
+    // スクロール出現
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+    } else {
+      document.querySelectorAll(".rv").forEach((el) => el.classList.add("in"));
     }
 
-    // トラストバー
-    const bar = document.getElementById("trust-bar");
-    if (bar) {
-      const pairs = [["trust-google", L.googleReview], ["trust-tripadvisor", L.tripadvisor], ["trust-instagram", L.instagram]];
-      let any = false;
-      pairs.forEach(function (pr) {
-        const a = document.getElementById(pr[0]);
-        if (a) { a.hidden = !pr[1]; if (pr[1]) { a.href = pr[1]; any = true; } }
-      });
-      bar.hidden = !(f.trustBar && any);
-    }
-
-    // 配達セクション
-    const dl = document.getElementById("delivery");
-    if (dl) {
-      dl.hidden = !f.delivery;
-      const m = document.getElementById("dl-mail");
-      if (m) m.href = "mailto:" + OCTO_CONFIG.contactEmail + "?subject=" + encodeURIComponent(t("dl.title"));
-    }
-
-    // スマホ固定CTA・連絡ボタン
-    const cta = document.getElementById("sticky-cta");
-    if (cta) cta.hidden = !f.stickyCta;
-    const cf = document.getElementById("contact-float");
-    if (cf) {
-      const wa = document.getElementById("cf-whatsapp");
-      const ln = document.getElementById("cf-line");
-      if (wa) { wa.hidden = !L.whatsapp; if (L.whatsapp) wa.href = L.whatsapp; }
-      if (ln) { ln.hidden = !L.line; if (L.line) ln.href = L.line; }
-      cf.hidden = !(L.whatsapp || L.line);
+    // ヒーロー動画：hero.mp4 が無ければ静止画にフォールバック
+    const v = document.getElementById("heroVideo");
+    if (v) {
+      const src = v.querySelector("source");
+      src && src.addEventListener("error", () => v.remove());
+      v.addEventListener("error", () => v.remove());
     }
   }
 
-
-  /* ---------- ジャーナル：枠なしエディトリアル ---------- */
-  function renderJournal() {
-    const sec = document.getElementById("journal");
-    const grid = document.getElementById("journal-grid");
-    if (!sec || !grid) return;
-    const posts = OCTO_CONFIG.posts || [];
-    if (!posts.length) { sec.hidden = true; return; }
-    sec.hidden = false;
-    grid.innerHTML = "";
-    posts.forEach(function (p) {
-      const a = document.createElement("a");
-      a.className = "journal-item reveal";
-      a.href = p.url;
-      a.innerHTML =
-        '<div class="ji-media reveal-img"><img src="' + p.img + '" alt="" loading="lazy" onerror="this.src=\'images/placeholder.svg\'"></div>' +
-        "<time>" + p.date + "</time>" +
-        '<h3><span class="u">' + p.title[lang] + "</span></h3>" +
-        "<p>" + p.excerpt[lang] + "</p>" +
-        '<span class="jc-read">' + t("blog.read") + " →</span>";
-      grid.appendChild(a);
-    });
-    observeReveals(grid);
-  }
-
-  /* ---------- ヒーロー動画  /* ---------- ヒーロー動画：hero.mp4 が無ければ静止画にフォールバック ---------- */
-  (function () {
-    const v = document.querySelector(".hero-video");
-    if (!v) return;
-    const s = v.querySelector("source");
-    function drop() { v.remove(); }
-    if (s) s.addEventListener("error", drop);
-    v.addEventListener("error", drop);
-  })();
-
-  /* ---------- モーションシステム：スタッガー表示・画像リビール ---------- */
-  const io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.15, rootMargin: "0px 0px -6% 0px" });
-
-  function observeReveals(root) {
-    const els = (root || document).querySelectorAll(".reveal:not(.on), .reveal-img:not(.on)");
-    els.forEach(function (el, i) {
-      el.style.setProperty("--d", (i % 6) * 90 + "ms");
-      io.observe(el);
-    });
-  }
-
-  document.querySelectorAll(".section-head, .steps li, .area-card, .faq-list details, .company-inner, .support-card, .rules-box, .delivery-inner")
-    .forEach(function (el) { el.classList.add("reveal"); });
-  observeReveals(document);
-
-  /* ---------- ヘッダー：スクロールで隠す/出す・背景切替 ---------- */
-  (function () {
-    const header = document.querySelector(".site-header");
-    let last = 0;
-    window.addEventListener("scroll", function () {
-      const y = window.scrollY;
-      header.classList.toggle("scrolled", y > 40);
-      header.classList.toggle("hide", y > 320 && y > last);
-      last = y;
-    }, { passive: true });
-  })();
-
-  /* ---------- ヒーロー：パララックス（reduced-motion時は無効） ---------- */
-  (function () {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const bg = document.querySelector(".hero-bg");
-    if (!bg) return;
-    let ticking = false;
-    window.addEventListener("scroll", function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () {
-        const y = window.scrollY;
-        if (y < window.innerHeight * 1.2) bg.style.transform = "translateY(" + y * 0.22 + "px)";
-        ticking = false;
+  /* ---------- ヘッダー / モバイルメニュー / 固定CTA ---------- */
+  function initChrome() {
+    const burger = document.getElementById("burger");
+    const nav = document.getElementById("nav");
+    if (burger && nav) {
+      burger.addEventListener("click", () => {
+        const open = nav.classList.toggle("open");
+        burger.setAttribute("aria-expanded", open);
       });
-    }, { passive: true });
-  })();
+      nav.querySelectorAll("a").forEach((a) =>
+        a.addEventListener("click", () => nav.classList.remove("open"))
+      );
+    }
+    const sticky = document.getElementById("stickyCta");
+    if (sticky && C.features.stickyCta) {
+      const hero = document.getElementById("hero");
+      window.addEventListener("scroll", () => {
+        sticky.classList.toggle("show", window.scrollY > (hero ? hero.offsetHeight : 500));
+      }, { passive: true });
+    }
+  }
 
-  /* ---------- ロード時のヒーロー登場シーケンス ---------- */
-  requestAnimationFrame(function () {
-    setTimeout(function () { document.body.classList.add("is-loaded"); }, 80);
-  });
-
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-  applyLang();
+  /* ---------- 起動 ---------- */
+  function renderAll() {
+    renderStatic();
+    renderBikes();
+    renderServices();
+    renderFaq();
+    renderBookingOptions();
+  }
+  applyI18n();
+  renderAll();
+  initBooking();
+  initChrome();
+  initEffects();
 })();

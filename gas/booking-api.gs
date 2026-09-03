@@ -8,11 +8,11 @@
 ========================================================= */
 
 // ★ サイト側 js/config.js の inventory と同じ数に合わせてください
-const INVENTORY = { ebike: 4, cruiser: 3, city: 5 };
+const INVENTORY = { cross: 3, mtb: 3 };  // ★実際の保有台数に合わせて変更
 
 // 予約シート名と通知先メール
 const SHEET_NAME = "予約台帳";
-const NOTIFY_EMAIL = "info@octobicycle.com";
+const NOTIFY_EMAIL = "yuji19920508@gmail.com";  // 予約スプレッドシート管理用
 
 /* ---------- 初回セットアップ：メニューから1回だけ実行 ---------- */
 function setup() {

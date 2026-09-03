@@ -1,224 +1,243 @@
 /* =========================================================
    ★ お店側で編集するのはこのファイルだけでOK ★
-   料金・車種・決済リンク（Stripe Payment Links）を設定します。
+   料金・車種・事業内容・連絡先・リンクをここで一元管理します。
 ========================================================= */
 const OCTO_CONFIG = {
 
-  // 車種と料金（円・税込）。durationキー: 3h=3時間 / 1d=1日 / 2d=1泊2日
+  /* ---- 連絡先 ----
+     customerEmail : お客様向け（サイト上に表示・予約メールの宛先）
+     adminEmail    : 予約スプレッドシート管理用（サイトには表示されません。
+                     gas/booking-api.gs の通知先に使用） */
+  customerEmail: "octobicycle@gmail.com",
+  adminEmail: "yuji19920508@gmail.com",
+  phone: "+81-70-3227-6440",
+
+  /* ---- 拠点（貸出・返却場所）---- */
+  location: {
+    postal: "156-0042",
+    address: {
+      ja: "東京都世田谷区羽根木一丁目29-13 第二羽根木コーポ103",
+      en: "#103 Dai-ni Haneki Corp, 1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042",
+      ko: "도쿄도 세타가야구 하네기 1-29-13 제2하네기 코포 103호",
+      zh: "东京都世田谷区羽根木一丁目29-13 第二羽根木公寓103"
+    },
+    mapQuery: "東京都世田谷区羽根木1-29-13",
+    closedDays: { ja: "定休日なし", en: "Open every day", ko: "연중무휴", zh: "全年无休" },
+    note: {
+      ja: "貸出・返却は世田谷・羽根木の倉庫にて。時間はご予約時に調整します。",
+      en: "Pick-up & return at our Setagaya (Haneki) warehouse. Times arranged when you book.",
+      ko: "대여·반납은 세타가야 하네기 창고에서. 시간은 예약 시 조정합니다.",
+      zh: "取车·还车地点为世田谷羽根木仓库。具体时间在预约时协商。"
+    }
+  },
+
+  /* ---- レンタル車種（クロスバイク / マウンテンバイクのみ・共通料金）---- */
   bikes: [
     {
-      id: "ebike",
-      img: "images/bike-ebike.jpg",
-      price: { "3h": 3000, "1d": 5000, "2d": 8000 },
-      name: { ja: "eバイク（電動アシスト）", en: "E-Bike (Pedal Assist)", ko: "전기자전거 (E-Bike)", zh: "电动辅助自行车 (E-Bike)" },
-      tag:  { ja: "一番人気・坂道もラクラク", en: "Most popular · Effortless on hills", ko: "가장 인기 · 언덕도 편하게", zh: "最受欢迎 · 上坡轻松" },
-      desc: { ja: "ARCHON DESIGN A03など、プロショップ整備のeバイク。坂道の多い世田谷エリアもラクラク、観光の行動範囲が一気に広がります。",
-              en: "Pro-maintained e-bikes like the ARCHON DESIGN A03. Tackle Setagaya's hills effortlessly and cover 3x the ground.",
-              ko: "ARCHON DESIGN A03 등 프로숍이 정비한 전기자전거. 세타가야의 언덕도 편하게, 관광 반경이 확 넓어집니다.",
-              zh: "ARCHON DESIGN A03等专业车店维护的电动自行车，轻松应对世田谷的坡道，观光范围扩大三倍。" }
+      id: "cross",
+      img: "images/bike-cross.jpg",
+      name: { ja: "クロスバイク", en: "Cross Bike (Hybrid)", ko: "크로스 바이크", zh: "混合动力自行车" },
+      tag:  { ja: "街乗り・観光の定番", en: "Best for city & sightseeing", ko: "시내·관광의 정석", zh: "市区观光首选" },
+      desc: {
+        ja: "軽快で扱いやすく、世田谷の街から多摩川サイクリングロードまで幅広く活躍。初めての方にもおすすめです。",
+        en: "Light and easy to handle — great for Setagaya streets and the Tama River cycling road alike.",
+        ko: "가볍고 다루기 쉬워 세타가야 시내부터 다마가와 자전거도로까지 폭넓게 활약합니다.",
+        zh: "轻快易操控，从世田谷街区到多摩川自行车道都能胜任，新手也能轻松驾驭。"
+      }
     },
     {
-      id: "cruiser",
-      img: "images/bike-cruiser.jpg",
-      price: { "3h": 2000, "1d": 3500, "2d": 6000 },
-      name: { ja: "ストレッチクルーザー", en: "Stretch Cruiser", ko: "스트레치 크루저", zh: "拉伸巡航车" },
-      tag:  { ja: "写真映え No.1", en: "Best for photos", ko: "인생샷 No.1", zh: "拍照最上镜" },
-      desc: { ja: "BRONX BUGGY STRETCHなど西海岸スタイルのクルーザー。世田谷の街を流すだけで絵になります。",
-              en: "West-coast style cruisers like the BRONX BUGGY STRETCH. Cruise Setagaya streets — every ride is a photo op.",
-              ko: "BRONX BUGGY STRETCH 등 웨스트코스트 스타일 크루저. 세타가야 거리를 달리는 것만으로 그림이 됩니다.",
-              zh: "BRONX BUGGY STRETCH等西海岸风格巡航车，骑行世田谷街头，处处皆是美景。" }
-    },
-    {
-      id: "city",
-      img: "images/bike-city.jpg",
-      price: { "3h": 1500, "1d": 2500, "2d": 4000 },
-      name: { ja: "シティバイク", en: "City Bike", ko: "시티 바이크", zh: "城市自行车" },
-      tag:  { ja: "気軽に街乗り", en: "Easy city riding", ko: "가볍게 시내 라이딩", zh: "轻松市区骑行" },
-      desc: { ja: "カゴ付きで買い物や下町散策に。初めての方にもおすすめ。",
-              en: "Basket included — perfect for shopping streets and old-town strolls.",
-              ko: "바구니 장착. 쇼핑과 시내 산책에 최적.",
-              zh: "带车筐，适合逛街和老街漫步。" }
+      id: "mtb",
+      img: "images/bike-mtb.jpg",
+      name: { ja: "マウンテンバイク", en: "Mountain Bike", ko: "마운틴 바이크", zh: "山地自行车" },
+      tag:  { ja: "タフに走りたい方へ", en: "For rougher rides", ko: "터프하게 달리고 싶은 분께", zh: "适合喜欢越野骑行的您" },
+      desc: {
+        ja: "太めのタイヤとサスペンションで段差や砂利道も安心。長距離やアクティブなライドに。",
+        en: "Wide tires and front suspension soak up curbs and gravel — built for longer, active rides.",
+        ko: "두꺼운 타이어와 서스펜션으로 턱이나 자갈길도 안심. 장거리 라이딩에 적합합니다.",
+        zh: "宽胎与前避震轻松应对台阶与碎石路，适合长距离和活力骑行。"
+      }
     }
   ],
 
-  // ★ Stripeの「支払いリンク（Payment Links）」を作成してURLを貼るだけで決済が動きます。
-  //    Stripeダッシュボード → 商品 → 支払いリンクを作成（数量変更を許可にチェック）
-  //    未設定（空文字）の場合は、問い合わせメールでの仮予約に自動フォールバックします。
+  /* ---- 料金（円・税込・クロス/MTB共通）----
+     day1     : 1日目
+     dayExtra : 2日目以降 1日あたり
+     week     : 1週間
+     month    : 1ヶ月 */
+  pricing: { day1: 3500, dayExtra: 2500, week: 11000, month: 22000 },
+
+  /* ---- Stripe 支払いリンク（任意）----
+     固定料金プランのみ対応。作成したらURLを貼るだけで決済ボタンが有効になります。
+     未設定（""）の場合はメールでの予約リクエストに自動フォールバック。 */
   paymentLinks: {
-    "ebike_3h": "",   // 例: "https://buy.stripe.com/xxxx"
-    "ebike_1d": "",
-    "ebike_2d": "",
-    "cruiser_3h": "",
-    "cruiser_1d": "",
-    "cruiser_2d": "",
-    "city_3h": "",
-    "city_1d": "",
-    "city_2d": ""
+    day1:  "",   // 1日プラン ¥3,500
+    week:  "",   // 1週間プラン ¥11,000
+    month: ""    // 1ヶ月プラン ¥22,000
   },
 
-  // 予約メールのフォールバック先
-  contactEmail: "info@octobicycle.com"
-};
-
-/* =========================================================
-   ▼▼ ここから追加設定（TRB型の機能。すべてこのファイルで編集できます） ▼▼
-========================================================= */
-
-// ---- 機能スイッチ：true/false で表示を切り替え ----
-OCTO_CONFIG.features = {
-  promoBanner: true,      // 予約チケット内の「公式サイト特典」帯
-  delivery: false,        // ホテル/宿への配達セクション（運用を始めたら true に）
-  trustBar: true,         // レビュー・SNSへの導線バー
-  stickyCta: true         // スマホ下部の固定「予約」ボタン
-};
-
-// ---- 公式サイト特典の文言（4言語） ----
-OCTO_CONFIG.promo = {
-  ja: "公式サイト予約がいちばんお得（ベストレート）",
-  en: "Best rate guaranteed — book direct on our site",
-  ko: "공식 사이트 예약이 가장 저렴합니다 (베스트 레이트)",
-  zh: "官网直订享最优价格（最佳价格保证）"
-};
-
-// ---- クチコミ・SNSへのリンク（空文字 "" にするとボタンが消えます） ----
-OCTO_CONFIG.links = {
-  googleReview: "https://www.google.com/maps/search/?api=1&query=OCTO+BICYCLE+%E4%B8%96%E7%94%B0%E8%B0%B7",
-  tripadvisor: "",                                        // 掲載されたらURLを貼る
-  instagram: "https://www.instagram.com/octobicycle/",
-  whatsapp: "",   // 例: "https://wa.me/817032276440"（欧米圏のお客様向け・推奨）
-  line: ""        // 例: "https://line.me/R/ti/p/@xxxx"
-};
-
-// ---- おすすめライドプラン（TRBのツアーカード型。自走モデルコース） ----
-// recommend: 予約ウィジェットに自動セットされる車種ID / duration
-OCTO_CONFIG.plans = [
-  {
-    id: "gotokuji",
-    img: "images/area2.jpg",
-    recommend: { bike: "city", duration: "3h" },
-    badge: { ja: "一番人気", en: "MOST POPULAR", ko: "가장 인기", zh: "最受欢迎" },
-    name: { ja: "豪徳寺・招き猫ループ", en: "Gotokuji Lucky-Cat Loop", ko: "고토쿠지 마네키네코 루프", zh: "豪德寺招财猫环线" },
-    desc: {
-      ja: "招き猫発祥の豪徳寺、松陰神社、ボロ市通りをめぐる下町ループ。写真好きに最適。",
-      en: "Ride to Gotokuji — the birthplace of the lucky cat — plus Shoin Shrine and Boro-ichi Street. A photographer's dream.",
-      ko: "마네키네코의 발상지 고토쿠지, 쇼인 신사, 보로이치 거리를 도는 로컬 루프. 사진 찍기 좋아요.",
-      zh: "骑行前往招财猫发源地豪德寺，途经松阴神社与跳蚤市场街。拍照绝佳。"
-    },
-    chips: {
-      ja: ["⏱ 約3時間", "📍 8km", "📸 写真スポット多数"],
-      en: ["⏱ ~3 hours", "📍 8 km", "📸 Photo spots"],
-      ko: ["⏱ 약 3시간", "📍 8km", "📸 포토 스팟"],
-      zh: ["⏱ 约3小时", "📍 8公里", "📸 拍照胜地"]
+  /* ---- 配達（ホテル・指定場所への持込/引取）---- */
+  delivery: {
+    enabled: true,
+    note: {
+      ja: "ホテル・ご指定の場所へのお届け／引き取りも別途料金で承ります（エリア・料金はお問い合わせください）。",
+      en: "Delivery & pick-up to your hotel or a location of your choice is available for an extra fee (ask us for area & pricing).",
+      ko: "호텔·지정 장소로의 배송/회수도 별도 요금으로 가능합니다(지역·요금은 문의해 주세요).",
+      zh: "可另收费用配送/回收至酒店或指定地点（区域与费用请咨询）。"
     }
   },
-  {
-    id: "tamariver",
-    img: "images/area1.jpg",
-    recommend: { bike: "ebike", duration: "1d" },
-    badge: null,
-    name: { ja: "多摩川リバーサイド1日ライド", en: "Tama River Full-Day Ride", ko: "다마가와 리버사이드 1일 라이드", zh: "多摩川河畔一日骑行" },
-    desc: {
-      ja: "信号の少ない河川敷サイクリングロードを二子玉川方面へ。eバイクなら往復もラクラク。",
-      en: "Cruise the car-free riverside cycling road toward Futako-Tamagawa. Effortless on an e-bike.",
-      ko: "신호가 적은 강변 자전거도로를 따라 후타코타마가와 방면으로. 전기자전거라면 왕복도 편하게.",
-      zh: "沿几乎无红绿灯的河畔骑行道前往二子玉川方向，骑电动车轻松往返。"
-    },
-    chips: {
-      ja: ["⏱ 半日〜1日", "📍 20–30km", "⚡ eバイク推奨"],
-      en: ["⏱ Half–full day", "📍 20–30 km", "⚡ E-bike recommended"],
-      ko: ["⏱ 반나절~1일", "📍 20–30km", "⚡ 전기자전거 추천"],
-      zh: ["⏱ 半天至一天", "📍 20–30公里", "⚡ 推荐电动车"]
-    }
+
+  /* ---- SNS・クチコミ ---- */
+  links: {
+    instagram: "https://www.instagram.com/octo_bicycle?igsi=a2VmczhqdnlnZTA4&utm_source=qr",
+    googleReview: "https://www.google.com/search?kgmid=%2Fg%2F11vxm9050g&q=OCTO+BICYCLE",  // プロフィール直リンク,
+    tripadvisor: "",
+    whatsapp: "",
+    line: "https://lin.ee/nXJCkVd"
   },
-  {
-    id: "komazawa",
-    img: "images/area3.jpg",
-    recommend: { bike: "cruiser", duration: "2d" },
-    badge: null,
-    name: { ja: "駒沢パーク＆サンセットクルーズ", en: "Komazawa Park & Sunset Cruise", ko: "고마자와 공원 & 선셋 크루즈", zh: "驹泽公园与日落巡航" },
-    desc: {
-      ja: "1964年五輪の駒沢公園から二子玉川の夕景へ。1泊2日プランなら夜の街乗りも楽しめます。",
-      en: "From 1964-Olympic Komazawa Park to Futako-Tamagawa at sunset. The 2-day plan lets you keep riding after dark.",
-      ko: "1964년 올림픽의 고마자와 공원에서 후타코타마가와의 석양까지. 1박 2일 플랜이면 야간 라이딩도 OK.",
-      zh: "从1964年奥运会场驹泽公园骑到二子玉川看日落。选择两天一夜方案，夜骑也没问题。"
+
+  /* ---- 機能スイッチ ---- */
+  features: {
+    trustBar: true,
+    stickyCta: true
+  },
+
+  /* ---- 事業内容（一覧カード）----
+     ja本文はご指定の文言そのまま。順序の入れ替え・追加はこの配列を編集。 */
+  services: [
+    {
+      id: "sale", icon: "cart", photo: "images/specialimg03.jpg", latin: "SALES",
+      name: { ja: "自転車販売", en: "Bicycle Sales", ko: "자전거 판매", zh: "自行车销售" },
+      desc: {
+        ja: "ロードバイクからクロスバイク、一般車、電動アシスト自転車まで、お客様の用途やライフスタイルに合わせた自転車をご提案します。初めての方からスポーツバイクを楽しむ方まで、購入前のご相談から車体選びまで丁寧にサポートします。",
+        en: "From road bikes and hybrids to city bikes and e-assist bicycles, we propose the right bike for your needs and lifestyle — with careful support from pre-purchase consultation to choosing the frame, for beginners and sport riders alike.",
+        ko: "로드바이크부터 크로스바이크, 일반 자전거, 전동 어시스트 자전거까지, 용도와 라이프스타일에 맞는 자전거를 제안합니다. 구매 전 상담부터 차체 선택까지 정성껏 지원합니다.",
+        zh: "从公路车、混合动力车到普通自行车、电动助力车，根据您的用途与生活方式推荐合适的车型。从购前咨询到选车，全程细致支持。"
+      }
     },
-    chips: {
-      ja: ["🌇 夕方〜", "📍 12km", "🚲 クルーザーで映える"],
-      en: ["🌇 Golden hour", "📍 12 km", "🚲 Cruiser-perfect"],
-      ko: ["🌇 해질녘", "📍 12km", "🚲 크루저 감성"],
-      zh: ["🌇 黄昏时分", "📍 12公里", "🚲 巡航车出片"]
-    }
-  }
-];
-
-// ---- お客様の声（実際のレビューが集まったらここに追加。空 [] の間はセクション非表示） ----
-// 例:
-// OCTO_CONFIG.reviews = [
-//   { name: "Sarah", flag: "🇦🇺", source: "Google",
-//     text: { ja: "最高の体験でした！", en: "Best way to see Tokyo!", ko: "최고의 경험!", zh: "太棒了！" } }
-// ];
-// sample: true のレビューには「サンプル」バッジが付きます。
-// 実際のレビューが集まったら sample 行を消して text を差し替えてください。
-OCTO_CONFIG.reviews = [
-  { name: "Sarah M.", flag: "🇦🇺", source: "Google", sample: true,
-    text: {
-      ja: "eバイクで多摩川へ。電車では絶対に見られない東京でした。スタッフの英語も完璧！",
-      en: "Rode the e-bike out to the Tama River — a side of Tokyo you'll never see from a train. Staff's English was perfect!",
-      ko: "전기자전거로 다마가와까지. 전철로는 절대 볼 수 없는 도쿄였어요. 직원분 영어도 완벽!",
-      zh: "骑电动车去了多摩川，看到了坐电车绝对看不到的东京。店员英语也很棒！" } },
-  { name: "김지현", flag: "🇰🇷", source: "Instagram", sample: true,
-    text: {
-      ja: "招き猫のお寺までクルーザーで。写真が最高に映えました。",
-      en: "Cruised to the lucky-cat temple — the photos came out amazing.",
-      ko: "크루저 타고 마네키네코 절까지. 인생샷 건졌습니다.",
-      zh: "骑巡航车去了招财猫寺，照片拍得太好看了。" } },
-  { name: "Wang L.", flag: "🇹🇼", source: "Google", sample: true,
-    text: {
-      ja: "予約から支払いまで1分。当日は乗るだけでした。ヘルメット無料も嬉しい。",
-      en: "Booking and payment took one minute. Just showed up and rode. Free helmet was a nice touch.",
-      ko: "예약부터 결제까지 1분. 당일엔 타기만 하면 됐어요. 헬멧 무료도 좋았습니다.",
-      zh: "预约到付款只花了1分钟，当天到店就能骑。免费头盔也很贴心。" } }
-];
-
-/* =========================================================
-   ▼▼ 在庫・空き状況管理（このサイトだけで自社運用するための設定） ▼▼
-========================================================= */
-
-// ---- 保有台数（車種ごと）。増車・減車したらここを変更 ----
-OCTO_CONFIG.inventory = { ebike: 4, cruiser: 3, city: 5 };
-
-// ---- 定休日（0=日,1=月,2=火...6=土）。火曜定休 ----
-OCTO_CONFIG.closedDays = [2];
-
-// ---- 手動ブロック日（満車・臨時休業・イベント貸切など）。"YYYY-MM-DD" 形式 ----
-// 例: OCTO_CONFIG.blackoutDates = ["2026-09-15", "2026-09-16"];
-OCTO_CONFIG.blackoutDates = [];
-
-// ---- 空き状況API（Google Apps Script のURL）----
-// gas/booking-api.gs を設置してURLを貼ると「リアルタイム残数表示＋予約自動記録」が有効になります。
-// 空文字 "" の間は、上の inventory と blackoutDates だけで動く簡易モードです。
-OCTO_CONFIG.availabilityApi = "";
-
-/* =========================================================
-   ▼▼ ジャーナル（ブログ）記事一覧 ▼▼
-   記事を追加したら blog/ にHTMLを置き、ここに1件追加 → sitemap.xml にもURLを追加
-========================================================= */
-OCTO_CONFIG.posts = [
-  {
-    url: "blog/gotokuji-lucky-cat.html",
-    img: "images/area2.jpg",
-    date: "2026-08-29",
-    title: {
-      ja: "豪徳寺：招き猫のお寺へ自転車で行こう",
-      en: "Gotokuji: Visit the Lucky Cat Temple by Bike",
-      ko: "고토쿠지: 자전거로 가는 마네키네코의 절",
-      zh: "豪德寺：骑自行车去招财猫的发源地"
+    {
+      id: "rental", icon: "bike", photo: "images/bike-cross.jpg", latin: "RENTAL",
+      links: [{ url: "#booking",
+                label: { ja: "料金を見て予約する", en: "See pricing & book", ko: "요금 확인·예약", zh: "查看价格并预约" } }],
+      name: { ja: "自転車レンタル", en: "Bicycle Rental", ko: "자전거 렌털", zh: "自行车租赁" },
+      desc: {
+        ja: "観光や日常の移動、短期間の利用など、さまざまな用途に合わせた自転車のレンタルサービスを提供しています。個人のお客様はもちろん、宿泊施設や法人・施設向けのレンタルにも対応します。",
+        en: "Bicycle rental for sightseeing, daily transport and short-term use. We serve individual customers as well as hotels, businesses and facilities.",
+        ko: "관광, 일상 이동, 단기 이용 등 다양한 용도에 맞는 자전거 렌털 서비스를 제공합니다. 개인 고객은 물론 숙박시설·법인·시설 대상 렌털에도 대응합니다.",
+        zh: "提供适合观光、日常出行、短期使用等多种用途的自行车租赁服务。除个人客户外，也面向住宿设施、法人及机构提供租赁。"
+      }
     },
-    excerpt: {
-      ja: "1,000体の招き猫が並ぶ世田谷の隠れた名所へ、店から自転車で15分。",
-      en: "1,000 beckoning cats, 15 minutes from our shop by bicycle. Tokyo's best-kept secret.",
-      ko: "1,000개의 마네키네코가 있는 세타가야의 숨은 명소. 매장에서 자전거로 15분.",
-      zh: "1,000只招财猫的世田谷隐藏名所，从本店骑车仅15分钟。"
+    {
+      id: "mobile-repair", icon: "wrench", photo: "images/specialimg02.jpg", latin: "ON-SITE REPAIR",
+      links: [{ url: "services/shutcho-shuri.html",
+                label: { ja: "出張修理の詳細を見る", en: "On-site repair details", ko: "출장 수리 자세히", zh: "上门维修详情" } }],
+      name: { ja: "出張修理・出張メンテナンス", en: "On-site Repair & Maintenance", ko: "출장 수리·정비", zh: "上门修理·保养" },
+      desc: {
+        ja: "ご自宅や職場など、ご希望の場所へお伺いして自転車の修理・メンテナンスを行います。パンクやタイヤ交換、ブレーキ・変速調整など、日常的なトラブルにも対応しています。",
+        en: "We come to your home or workplace to repair and service your bicycle — flat tires, tire replacement, brake and gear adjustment, and other everyday troubles.",
+        ko: "자택이나 직장 등 원하시는 장소로 찾아가 자전거 수리·정비를 실시합니다. 펑크, 타이어 교체, 브레이크·변속 조정 등 일상적인 트러블에 대응합니다.",
+        zh: "上门前往您的住所或工作地点进行自行车修理与保养。爆胎、换胎、刹车与变速调整等日常故障均可处理。"
+      }
+    },
+    {
+      id: "maintenance", icon: "gear", photo: "images/specialimg05.jpg", latin: "MAINTENANCE",
+      name: { ja: "自転車メンテナンス・点検", en: "Maintenance & Inspection", ko: "자전거 정비·점검", zh: "自行车保养·检修" },
+      desc: {
+        ja: "日常点検から定期メンテナンス、スポーツバイクのオーバーホールまで、自転車を安全・快適に長く乗るためのメンテナンスを行っています。",
+        en: "From routine checks and periodic maintenance to full sport-bike overhauls — keeping your bicycle safe, comfortable and running for years.",
+        ko: "일상 점검부터 정기 정비, 스포츠 바이크 오버홀까지, 자전거를 안전하고 쾌적하게 오래 탈 수 있도록 정비합니다.",
+        zh: "从日常检查、定期保养到运动自行车的大修，让您的自行车安全舒适、经久耐用。"
+      }
+    },
+    {
+      id: "used", icon: "recycle", photo: "images/specialimg00.jpg", latin: "USED & CONSIGN",
+      name: { ja: "中古自転車・委託販売", en: "Used Bikes & Consignment", ko: "중고 자전거·위탁 판매", zh: "二手自行车·委托销售" },
+      desc: {
+        ja: "不要になった自転車や買い替えを検討している自転車の委託販売にも対応。状態を確認し、次に必要とする方へつなげます。",
+        en: "We also handle consignment sales of bicycles you no longer need or plan to replace — checking their condition and passing them on to the next rider.",
+        ko: "필요 없어진 자전거나 교체를 검토 중인 자전거의 위탁 판매에도 대응합니다. 상태를 확인해 다음 필요한 분께 연결합니다.",
+        zh: "也受理闲置自行车或计划换购车辆的委托销售。确认车况后，将它交到下一位需要的人手中。"
+      }
+    },
+    {
+      id: "buyback", icon: "truck", photo: "images/specialimg07.jpg", latin: "BUY-BACK & PICK-UP",
+      links: [{ url: "services/kaitori.html",
+                label: { ja: "出張買取の詳細を見る", en: "Buy-back details", ko: "출장 매입 자세히", zh: "上门收购详情" } },
+              { url: "services/haisha-kaishu.html",
+                label: { ja: "廃車回収の詳細を見る", en: "Disposal pick-up details", ko: "폐자전거 회수 자세히", zh: "废车回收详情" } }],
+      name: { ja: "出張買取・廃車回収", en: "Buy-back & Disposal Pick-up", ko: "출장 매입·폐자전거 회수", zh: "上门收购·废车回收" },
+      desc: {
+        ja: "ご自宅までお伺いし、不要になった自転車の買取・引き取りを行います。乗らなくなった廃自転車の回収もご相談ください。",
+        en: "We visit your home to buy back or collect bicycles you no longer use. Ask us about disposal pick-up for bikes past riding condition.",
+        ko: "자택까지 방문해 필요 없어진 자전거의 매입·수거를 실시합니다. 타지 않게 된 폐자전거 회수도 상담해 주세요.",
+        zh: "上门收购或回收您不再使用的自行车。报废自行车的回收也欢迎咨询。"
+      }
+    },
+    {
+      id: "b2b", icon: "building", photo: "images/specialimg01.jpg", latin: "FOR BUSINESS",
+      name: { ja: "法人・施設向け自転車サービス", en: "Services for Businesses & Facilities", ko: "법인·시설 대상 자전거 서비스", zh: "面向法人·设施的自行车服务" },
+      desc: {
+        ja: "民泊施設、ホテル、マンション、企業などを対象に、自転車の導入からレンタル、定期メンテナンス、管理までトータルでサポートします。複数台の導入や継続的なメンテナンスについてもご相談いただけます。",
+        en: "For guesthouses, hotels, apartment buildings and companies: total support from bike introduction and rental to periodic maintenance and fleet management, including multi-unit deployments.",
+        ko: "민박시설, 호텔, 맨션, 기업 등을 대상으로 자전거 도입부터 렌털, 정기 정비, 관리까지 토털 지원합니다. 여러 대 도입이나 지속적인 정비도 상담 가능합니다.",
+        zh: "面向民宿、酒店、公寓、企业等，提供从自行车引进、租赁到定期保养与管理的一站式支持。多辆引进及持续保养亦可咨询。"
+      }
+    },
+    {
+      id: "consult", icon: "chat", photo: "images/specialimg06.jpg", latin: "CONSULTATION",
+      name: { ja: "自転車に関する各種ご相談", en: "Any Bicycle Questions", ko: "자전거 관련 각종 상담", zh: "自行车相关咨询" },
+      desc: {
+        ja: "「どんな自転車を選べばいい？」「修理した方がいい？買い替えた方がいい？」など、自転車に関するさまざまな疑問やご相談にも対応しています。",
+        en: "\u201CWhich bike should I choose?\u201D \u201CShould I repair it or replace it?\u201D — we're happy to help with any bicycle question.",
+        ko: "\u201C어떤 자전거를 고르면 좋을까?\u201D \u201C수리할까, 새로 살까?\u201D 등 자전거에 관한 다양한 궁금증과 상담에 대응합니다.",
+        zh: "\u201C该选什么样的自行车？\u201D\u201C是修理好还是换新好？\u201D等各种自行车相关疑问，欢迎随时咨询。"
+      }
     }
-  }
-];
+  ],
+
+  /* ---- 事業内容のしめの一文 ---- */
+  servicesClosing: {
+    ja: "自転車を「買う・借りる・直す・整える・長く使う」まで。地域の皆さまの快適な自転車ライフをサポートします。",
+    en: "Buy it, rent it, fix it, tune it, keep it running — we support every part of your bicycle life.",
+    ko: "자전거를 \u2018사고, 빌리고, 고치고, 정비하고, 오래 타는\u2019 것까지. 지역 여러분의 쾌적한 자전거 라이프를 지원합니다.",
+    zh: "从\u201C购买、租赁、修理、保养\u201D到\u201C长久使用\u201D——我们支持社区每一位的舒适自行车生活。"
+  },
+
+  /* ---- FAQ ---- */
+  faq: [
+    {
+      q: { ja: "予約は必要ですか？", en: "Do I need to book in advance?", ko: "예약이 필요한가요?", zh: "需要预约吗？" },
+      a: { ja: "台数に限りがあるため、事前のご予約をおすすめします。サイト上部の予約フォームまたはメールからどうぞ。",
+           en: "Yes, we recommend booking ahead as bikes are limited. Use the booking form at the top of this page or email us.",
+           ko: "대수가 한정되어 있어 사전 예약을 권장합니다. 페이지 상단의 예약 폼 또는 메일로 부탁드립니다.",
+           zh: "车辆数量有限，建议提前预约。请使用页面顶部的预约表单或发送邮件。" }
+    },
+    {
+      q: { ja: "貸出・返却はどこで行いますか？", en: "Where do I pick up and return the bike?", ko: "대여·반납은 어디서 하나요?", zh: "在哪里取车和还车？" },
+      a: { ja: "世田谷区羽根木の倉庫（〒156-0042 羽根木1-29-13 第二羽根木コーポ103）です。ホテルやご指定場所へのお届け・引き取りも別途料金で承ります。",
+           en: "At our warehouse in Haneki, Setagaya (1-29-13 Haneki, #103). Hotel / custom-location delivery and pick-up is available for an extra fee.",
+           ko: "세타가야구 하네기의 창고(하네기 1-29-13, 103호)입니다. 호텔·지정 장소 배송/회수는 별도 요금으로 가능합니다.",
+           zh: "在世田谷区羽根木的仓库（羽根木1-29-13 103室）。酒店或指定地点的配送/回收可另行付费办理。" }
+    },
+    {
+      q: { ja: "支払い方法は？", en: "How can I pay?", ko: "결제 방법은?", zh: "如何付款？" },
+      a: { ja: "オンライン決済（クレジットカード等）と現地でのお支払いに対応しています。詳細はご予約時にご案内します。",
+           en: "Online card payment and on-site payment are both available. Details are provided when you book.",
+           ko: "온라인 결제(신용카드 등)와 현장 결제 모두 가능합니다. 자세한 내용은 예약 시 안내드립니다.",
+           zh: "支持在线支付（信用卡等）与现场支付。详情将在预约时告知。" }
+    },
+    {
+      q: { ja: "ヘルメットや鍵は付きますか？", en: "Are helmets and locks included?", ko: "헬멧과 자물쇠가 포함되나요?", zh: "含头盔和车锁吗？" },
+      a: { ja: "鍵は全車に付属します。ヘルメットの貸出をご希望の場合はご予約時にお知らせください。",
+           en: "A lock comes with every bike. If you'd like a helmet, just let us know when booking.",
+           ko: "자물쇠는 전 차량에 포함됩니다. 헬멧 대여를 원하시면 예약 시 알려주세요.",
+           zh: "所有车辆均配车锁。如需头盔，请在预约时告知。" }
+    },
+    {
+      q: { ja: "定休日はありますか？", en: "Are you closed on certain days?", ko: "정기 휴무일이 있나요?", zh: "有固定休息日吗？" },
+      a: { ja: "定休日はありません。貸出・返却の時間はご予約時に調整します。",
+           en: "No — we're open every day. Pick-up and return times are arranged when you book.",
+           ko: "정기 휴무일은 없습니다. 대여·반납 시간은 예약 시 조정합니다.",
+           zh: "全年无休。取车与还车时间在预约时协商确定。" }
+    }
+  ]
+};

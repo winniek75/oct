@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://octobicycle.com/rental/</loc>
-    <changefreq>weekly</changefreq>
+    <loc>https://octobicycle.com/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://octobicycle.com/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://octobicycle.com/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://octobicycle.com/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://octobicycle.com/?lang=zh"/>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ja" href="https://octobicycle.com/rental/?lang=ja"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://octobicycle.com/rental/?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://octobicycle.com/rental/?lang=ko"/>
-    <xhtml:link rel="alternate" hreflang="zh" href="https://octobicycle.com/rental/?lang=zh"/>
   </url>
-  <url>
-    <loc>https://octobicycle.com/rental/blog/gotokuji-lucky-cat.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
+  <url><loc>https://octobicycle.com/services/kaitori.html</loc><priority>0.8</priority></url>
+  <url><loc>https://octobicycle.com/services/haisha-kaishu.html</loc><priority>0.8</priority></url>
+  <url><loc>https://octobicycle.com/services/shutcho-shuri.html</loc><priority>0.8</priority></url>
 </urlset>

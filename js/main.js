@@ -335,21 +335,26 @@
       "&body=" + encodeURIComponent(body);
   }
 
-  async function submitBooking() {
+  async function submitBooking(payUrl) {
     const doneEl = $("bkDone"), errEl = $("bkErr");
     doneEl.hidden = true; errEl.hidden = true;
+    const viaStripe = !!payUrl;
 
-    // APIが未設定なら従来のメール方式
-    if (!C.bookingApiUrl) { sendBookingMail(); return; }
+    // APIが未設定：リクエストはメール方式、決済は直接Stripeへ
+    if (!C.bookingApiUrl) {
+      if (viaStripe) { location.href = payUrl; } else { sendBookingMail(); }
+      return;
+    }
 
     const { payload } = bookingData();
+    if (viaStripe) payload.plan += "（オンライン決済）";   // 台帳で決済予定と分かる印
     // 台帳に必要な最低限の入力チェック
     if (!payload.name || !payload.contact || !payload.start) {
       errEl.textContent = t("book.needInfo");
       errEl.hidden = false;
       return;
     }
-    const btn = $("bkSubmit");
+    const btn = viaStripe ? $("bkPay") : $("bkSubmit");
     btn.disabled = true;
     const original = btn.textContent;
     btn.textContent = t("book.sending");
@@ -365,14 +370,26 @@
         return;
       }
       if (!out.ok) throw new Error(out.error || "api error");
-      doneEl.textContent = t("book.done").replace("{id}", out.id || "");
-      doneEl.hidden = false;
-      btn.textContent = original;
+      if (viaStripe) {
+        // 台帳に記録できたのでStripe決済ページへ
+        doneEl.textContent = t("book.toPayment");
+        doneEl.hidden = false;
+        btn.textContent = original;
+        setTimeout(() => { location.href = payUrl; }, 600);
+      } else {
+        doneEl.textContent = t("book.done").replace("{id}", out.id || "");
+        doneEl.hidden = false;
+        btn.textContent = original;
+      }
     } catch (err) {
-      // API失敗時はメール方式に自動フォールバック
       errEl.hidden = false;
       btn.textContent = original;
-      setTimeout(sendBookingMail, 1200);
+      if (viaStripe) {
+        // 記録に失敗しても決済はさせる（機会損失を防ぐ）
+        setTimeout(() => { location.href = payUrl; }, 1200);
+      } else {
+        setTimeout(sendBookingMail, 1200);
+      }
     } finally {
       btn.disabled = false;
     }
@@ -391,7 +408,12 @@
       start.addEventListener("input", checkAvailability);
       start.addEventListener("change", checkAvailability);
     }
-    $("bkSubmit").addEventListener("click", submitBooking);
+    $("bkSubmit").addEventListener("click", () => submitBooking());
+    const payBtn = $("bkPay");
+    if (payBtn) payBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      submitBooking(payBtn.href);
+    });
   }
 
   /* ---------- 演出：ヘッダー変化・スクロール出現・動画 ---------- */

@@ -591,3 +591,9 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
 .dfee-price{font-family:var(--font-latin);font-weight:800;color:#8FE79A;white-space:nowrap}
 
 .hint-ok{background:#DFF5DC;color:#1C5B26}
+
+/* ---- 空き状況表示 ---- */
+.avail{margin-top:7px;font-size:12.5px;font-weight:800;border-radius:8px;padding:6px 11px}
+.avail.checking{background:#EEF1E9;color:#68705F}
+.avail.ok{background:#DFF5DC;color:#1C5B26}
+.avail.full,.avail.short{background:#FDE2E2;color:#8A1F1F}

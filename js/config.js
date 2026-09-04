@@ -14,9 +14,9 @@ const OCTO_CONFIG = {
      gas/booking-api.gs をスプレッドシートに設置してデプロイし、
      発行されたURLをここに貼ると、予約リクエストが自動でシートに記録されます。
      空欄("")の間は従来どおりメール作成にフォールバックします。 */
-  bookingApiUrl: "",
+  bookingApiUrl: "https://script.google.com/macros/s/AKfycbwt8r4zikJc1yHHudhUj2Lt1uCxEzw_nh5SEF7Lbo3GKvkyXEETrZMe1tixvnf48xBG0g/exec",
 
-  adminEmail: "8octo.bicycle@gmail.com",
+  adminEmail: "octobicycle@gmail.com",
   phone: "+81-70-3227-6440",
 
   /* ---- 拠点（貸出・返却場所）---- */

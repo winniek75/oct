@@ -243,6 +243,16 @@
     if (dHint) dHint.hidden = !(r.wantsDelivery && !payUrl);
   }
 
+  function rentalDays(r) {
+    return r.plan === "week" ? 7 : r.plan === "month" ? 30 : r.days;
+  }
+  function endDateStr(startStr, r) {
+    if (!startStr) return "";
+    const d = new Date(startStr + "T00:00:00");
+    d.setDate(d.getDate() + rentalDays(r) - 1);   // 終了日＝返却日（両端含む）
+    return d.toISOString().slice(0, 10);
+  }
+
   function bookingData() {
     const r = calcTotal();
     const bike = C.bikes.find((b) => b.id === $("bkBike").value) || C.bikes[0];
@@ -250,11 +260,14 @@
       r.plan === "week" ? t("book.plan.week") :
       r.plan === "month" ? t("book.plan.month") :
       r.days + " " + t("book.daysUnit");
+    const start = $("bkStart").value || "";
     return {
       r, bike, planLabel,
       payload: {
-        start: $("bkStart").value || "",
+        start: start,
+        end: endDateStr(start, r),
         bike: tx(bike.name),
+        bikeId: bike.id,
         plan: planLabel,
         qty: r.qty,
         delivery: r.wantsDelivery,
@@ -266,6 +279,44 @@
         lang: lang
       }
     };
+  }
+
+  /* ---- 空き状況のリアルタイム表示 ---- */
+  let availTimer = null, lastAvail = null;
+  function checkAvailability() {
+    const el = $("bkAvail");
+    if (!el) return;
+    if (!C.bookingApiUrl || !$("bkStart").value) { el.hidden = true; lastAvail = null; return; }
+    clearTimeout(availTimer);
+    availTimer = setTimeout(async () => {
+      const { r, payload } = bookingData();
+      el.hidden = false;
+      el.className = "avail checking";
+      el.textContent = t("book.availChecking");
+      try {
+        const url = C.bookingApiUrl +
+          "?action=avail&bike=" + encodeURIComponent(payload.bikeId) +
+          "&start=" + encodeURIComponent(payload.start) +
+          "&end=" + encodeURIComponent(payload.end);
+        const res = await fetch(url);
+        const a = await res.json();
+        if (!a.ok) throw new Error(a.error);
+        lastAvail = a.available;
+        if (a.available <= 0) {
+          el.className = "avail full";
+          el.textContent = t("book.availFull");
+        } else if (r.qty > a.available) {
+          el.className = "avail short";
+          el.textContent = t("book.availShort").replace("{n}", a.available);
+        } else {
+          el.className = "avail ok";
+          el.textContent = t("book.availLeft").replace("{n}", a.available);
+        }
+      } catch (err) {
+        el.hidden = true;   // API不通時は表示しない（送信時にサーバー側で最終チェック）
+        lastAvail = null;
+      }
+    }, 350);
   }
 
   function sendBookingMail() {
@@ -306,6 +357,13 @@
       // Content-Typeを付けないtext/plain送信（GASのCORS制約回避の定石）
       const res = await fetch(C.bookingApiUrl, { method: "POST", body: JSON.stringify(payload) });
       const out = await res.json();
+      if (!out.ok && out.code === "full") {
+        errEl.textContent = t("book.submitFull").replace("{n}", out.available);
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = original;
+        return;
+      }
       if (!out.ok) throw new Error(out.error || "api error");
       doneEl.textContent = t("book.done").replace("{id}", out.id || "");
       doneEl.hidden = false;
@@ -324,11 +382,15 @@
     if (!$("bkPlan")) return;
     ["bkPlan", "bkDays", "bkQty", "bkBike", "bkDelivery", "bkArea"].forEach((id) => {
       const el = $(id);
-      el && el.addEventListener("input", updateBooking);
-      el && el.addEventListener("change", updateBooking);
+      el && el.addEventListener("input", () => { updateBooking(); checkAvailability(); });
+      el && el.addEventListener("change", () => { updateBooking(); checkAvailability(); });
     });
     const start = $("bkStart");
-    if (start) start.min = new Date().toISOString().slice(0, 10);
+    if (start) {
+      start.min = new Date().toISOString().slice(0, 10);
+      start.addEventListener("input", checkAvailability);
+      start.addEventListener("change", checkAvailability);
+    }
     $("bkSubmit").addEventListener("click", submitBooking);
   }
 

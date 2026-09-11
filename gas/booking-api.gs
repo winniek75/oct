@@ -5,8 +5,8 @@
    ◆在庫の変更はここ（台数を書き換えるだけ）
 ========================================================= */
 const INVENTORY = {
-  cross: 3,   // クロスバイクの保有台数 ★実際の台数に変更してください
-  mtb:   3    // マウンテンバイクの保有台数 ★実際の台数に変更してください
+  cross: 2,   // クロスバイクの保有台数
+  mtb:   0    // マウンテンバイク（導入したら台数を入れる。サイト側config.jsのbookableもtrueに）
 };
 
 /* script.google.com で直接プロジェクトを作る場合はシートIDを貼る。
@@ -55,12 +55,19 @@ function availability_(bikeId, startStr, endStr) {
   let booked = 0;
   rows.forEach((r) => {
     const rStart = new Date(r[2]), rEnd = new Date(r[3]);
-    const rBikeId = String(r[5]);
+    // 手動入力行にも対応：車種IDが空なら「車種」の文字から推定
+    let rBikeId = String(r[5] || "").trim();
+    if (!rBikeId) {
+      const label = String(r[4] || "");
+      if (label.indexOf("クロス") !== -1 || /cross/i.test(label)) rBikeId = "cross";
+      else if (label.indexOf("マウンテン") !== -1 || /mtb|mountain/i.test(label)) rBikeId = "mtb";
+    }
     const rQty = Number(r[7]) || 1;
-    const rStatus = String(r[15]);
+    // 手動入力で状態が空欄の行は「新規」扱い（在庫を消費する）
+    const rStatus = String(r[15] || "").trim() || "新規";
     if (rBikeId !== bikeId) return;
     if (ACTIVE_STATUSES.indexOf(rStatus) === -1) return;
-    if (isNaN(rStart) || isNaN(rEnd)) return;
+    if (isNaN(rStart.getTime()) || isNaN(rEnd.getTime())) return;
     if (rStart <= e && rEnd >= s) booked += rQty;   // 期間が重なる
   });
   return { ok: true, total: total, booked: booked, available: Math.max(0, total - booked) };
@@ -121,9 +128,9 @@ function doPost(e) {
     if (/@/.test(d.contact || "")) {
       const msgs = {
         ja: { sub: "【OCTO BICYCLE】予約リクエストを受け付けました（" + id + "）",
-              body: d.name + " 様\n\nご予約リクエストありがとうございます。\n空き状況を確認のうえ、担当者よりご連絡いたします。\n\n受付番号: " + id + "\n期間: " + d.start + " 〜 " + d.end + "\n車種: " + d.bike + "\nプラン: " + d.plan + "\n台数: " + qty + "\n合計目安: ¥" + d.total + "\n\nOCTO BICYCLE\n〒156-0042 東京都世田谷区羽根木1-29-13 第二羽根木コーポ103" },
+              body: d.name + " 様\n\nご予約リクエストありがとうございます。\n空き状況を確認のうえ、担当者よりご連絡いたします。\n\n受付番号: " + id + "\n期間: " + d.start + " 〜 " + d.end + "\n車種: " + d.bike + "\nプラン: " + d.plan + "\n台数: " + qty + "\n合計目安: ¥" + d.total + "\n\nOCTO BICYCLE\n〒156-0042 東京都世田谷区羽根木1-29-13" },
         en: { sub: "[OCTO BICYCLE] Booking request received (" + id + ")",
-              body: "Dear " + d.name + ",\n\nThank you for your booking request. We will confirm and get back to you shortly.\n\nRequest ID: " + id + "\nPeriod: " + d.start + " - " + d.end + "\nBike: " + d.bike + "\nPlan: " + d.plan + "\nQty: " + qty + "\nEstimated total: ¥" + d.total + "\n\nOCTO BICYCLE\n#103 Dai-ni Haneki Corp, 1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042" },
+              body: "Dear " + d.name + ",\n\nThank you for your booking request. We will confirm and get back to you shortly.\n\nRequest ID: " + id + "\nPeriod: " + d.start + " - " + d.end + "\nBike: " + d.bike + "\nPlan: " + d.plan + "\nQty: " + qty + "\nEstimated total: ¥" + d.total + "\n\nOCTO BICYCLE\n1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042" },
         ko: { sub: "[OCTO BICYCLE] 예약 신청이 접수되었습니다 (" + id + ")",
               body: d.name + " 님\n\n예약 신청 감사합니다. 확인 후 연락드리겠습니다.\n\n접수번호: " + id + "\n기간: " + d.start + " ~ " + d.end + "\n차종: " + d.bike + "\n플랜: " + d.plan + "\n대수: " + qty + "\n예상 합계: ¥" + d.total + "\n\nOCTO BICYCLE" },
         zh: { sub: "[OCTO BICYCLE] 已收到您的预约申请（" + id + "）",

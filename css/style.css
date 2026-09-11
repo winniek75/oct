@@ -79,7 +79,10 @@ body.home header.site.at-top #burger{background:rgba(20,26,16,.4);border-color:r
 header.site.scrolled{box-shadow:0 6px 24px rgba(20,30,15,.08)}
 .site-inner{display:flex;align-items:center;gap:14px;min-height:64px;padding-top:6px;padding-bottom:6px;flex-wrap:nowrap;min-width:0}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.brand img{height:34px;width:auto}
+.brand img{height:30px;width:auto}
+.brand .logo-w{display:none}
+body.home header.site.at-top .brand .logo-b{display:none}
+body.home header.site.at-top .brand .logo-w{display:block}
 .brand b{
   font-family:var(--font-latin);font-weight:800;font-stretch:90%;
   font-size:17px;letter-spacing:.03em;
@@ -416,7 +419,7 @@ footer .tag{margin-top:4px}
 /* ---- スマホ最適化（〜480px）---- */
 @media (max-width:480px){
   .container{padding:0 16px}
-  .brand img{height:26px}
+  .brand img{height:20px}
   .site-inner{gap:8px}
   #burger{width:36px;height:36px;font-size:16px;flex:none}
   .lang{padding:1px;flex:none}
@@ -597,3 +600,6 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
 .avail.checking{background:#EEF1E9;color:#68705F}
 .avail.ok{background:#DFF5DC;color:#1C5B26}
 .avail.full,.avail.short{background:#FDE2E2;color:#8A1F1F}
+
+.foot-logo{height:26px;width:auto;margin-bottom:8px}
+@media (max-width:480px){.brand img{height:22px}}

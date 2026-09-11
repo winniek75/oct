@@ -170,7 +170,7 @@
     const bikeSel = $("bkBike");
     if (bikeSel) {
       const cur = bikeSel.value;
-      bikeSel.innerHTML = C.bikes.map((b) => `<option value="${b.id}">${tx(b.name)}</option>`).join("");
+      bikeSel.innerHTML = C.bikes.filter((b) => b.bookable !== false).map((b) => `<option value="${b.id}">${tx(b.name)}</option>`).join("");
       if (cur) bikeSel.value = cur;
     }
     const areaSel = $("bkArea");

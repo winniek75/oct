@@ -24,10 +24,10 @@ const OCTO_CONFIG = {
     /* 掲載するのは羽根木の拠点住所のみ。
        旧サイトの「世田谷2-28-21」（〒154-0017）は掲載しないこと。 */
     address: {
-      ja: "〒156-0042 東京都世田谷区羽根木一丁目29-13 第二羽根木コーポ103",
-      en: "#103 Dai-ni Haneki Corp, 1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042",
-      ko: "〒156-0042 도쿄도 세타가야구 하네기 1-29-13 제2하네기 코포 103호",
-      zh: "〒156-0042 东京都世田谷区羽根木一丁目29-13 第二羽根木公寓103"
+      ja: "〒156-0042 東京都世田谷区羽根木一丁目29-13",
+      en: "1-29-13 Haneki, Setagaya-ku, Tokyo 156-0042",
+      ko: "〒156-0042 도쿄도 세타가야구 하네기 1-29-13",
+      zh: "〒156-0042 东京都世田谷区羽根木一丁目29-13"
     },
     mapQuery: "東京都世田谷区羽根木1-29-13",
     closedDays: { ja: "定休日なし", en: "Open every day", ko: "연중무휴", zh: "全年无休" },
@@ -56,8 +56,9 @@ const OCTO_CONFIG = {
     {
       id: "mtb",
       img: "images/bike-mtb.jpg",
+      bookable: false,   // 導入したら true にして、GASのINVENTORY.mtbにも台数を入れる
       name: { ja: "マウンテンバイク", en: "Mountain Bike", ko: "마운틴 바이크", zh: "山地自行车" },
-      tag:  { ja: "タフに走りたい方へ", en: "For rougher rides", ko: "터프하게 달리고 싶은 분께", zh: "适合喜欢越野骑行的您" },
+      tag:  { ja: "近日導入予定", en: "Coming soon", ko: "곧 도입 예정", zh: "即将推出" },
       desc: {
         ja: "太めのタイヤとサスペンションで段差や砂利道も安心。長距離やアクティブなライドに。",
         en: "Wide tires and front suspension soak up curbs and gravel — built for longer, active rides.",
@@ -78,8 +79,8 @@ const OCTO_CONFIG = {
      固定料金プランのみ対応。作成したらURLを貼るだけで決済ボタンが有効になります。
      未設定（""）の場合はメールでの予約リクエストに自動フォールバック。 */
   paymentLinks: {
-    day1:  "",   // 1日プラン ¥3,500
-    week:  "",   // 1週間プラン ¥11,000
+    day1:  "https://buy.stripe.com/28EeVc68x3CJ0A2aP96sw00",   // 1日プラン ¥3,500
+    week:  "https://buy.stripe.com/28E9ASgNbehn0A29L56sw01",   // 1週間プラン ¥11,000
     month: ""    // 1ヶ月プラン ¥22,000
   },
 
@@ -242,10 +243,10 @@ const OCTO_CONFIG = {
     },
     {
       q: { ja: "貸出・返却はどこで行いますか？", en: "Where do I pick up and return the bike?", ko: "대여·반납은 어디서 하나요?", zh: "在哪里取车和还车？" },
-      a: { ja: "〒156-0042 世田谷区羽根木1-29-13 第二羽根木コーポ103です。ホテルやご指定場所へのお届け・引き取りも別途料金で承ります。",
-           en: "At 1-29-13 Haneki, Setagaya-ku (#103 Dai-ni Haneki Corp). Hotel / custom-location delivery and pick-up is available for an extra fee.",
-           ko: "세타가야구 하네기 1-29-13(제2하네기 코포 103호)입니다. 호텔·지정 장소 배송/회수는 별도 요금으로 가능합니다.",
-           zh: "位于世田谷区羽根木1-29-13（第二羽根木公寓103）。酒店或指定地点的配送/回收可另行付费办理。" }
+      a: { ja: "〒156-0042 世田谷区羽根木1-29-13です。ホテルやご指定場所へのお届け・引き取りも別途料金で承ります。",
+           en: "At 1-29-13 Haneki, Setagaya-ku. Hotel / custom-location delivery and pick-up is available for an extra fee.",
+           ko: "세타가야구 하네기 1-29-13입니다. 호텔·지정 장소 배송/회수는 별도 요금으로 가능합니다.",
+           zh: "位于世田谷区羽根木1-29-13。酒店或指定地点的配送/回收可另行付费办理。" }
     },
     {
       q: { ja: "支払い方法は？", en: "How can I pay?", ko: "결제 방법은?", zh: "如何付款？" },

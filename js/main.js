@@ -301,6 +301,8 @@
         const res = await fetch(url);
         const a = await res.json();
         if (!a.ok) throw new Error(a.error);
+        // 旧版API（在庫機能なし）が応答した場合は表示しない
+        if (typeof a.available !== "number") { el.hidden = true; lastAvail = null; return; }
         lastAvail = a.available;
         if (a.available <= 0) {
           el.className = "avail full";
@@ -440,13 +442,6 @@
       document.querySelectorAll(".rv").forEach((el) => el.classList.add("in"));
     }
 
-    // ヒーロー動画：hero.mp4 が無ければ静止画にフォールバック
-    const v = document.getElementById("heroVideo");
-    if (v) {
-      const src = v.querySelector("source");
-      src && src.addEventListener("error", () => v.remove());
-      v.addEventListener("error", () => v.remove());
-    }
   }
 
   /* ---------- ヘッダー / モバイルメニュー / 固定CTA ---------- */

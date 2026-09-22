@@ -331,17 +331,26 @@ nav.main a:hover{background:var(--green-pale);color:var(--green-deep)}
 
 /* ================= フォトバンド ================= */
 .photo-band{
-  position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;
+  position:relative;min-height:320px;display:flex;align-items:center;justify-content:center;
   background:
-    linear-gradient(rgba(10,14,8,.55), rgba(10,14,8,.55)),
+    linear-gradient(rgba(10,14,8,.62), rgba(10,14,8,.62)),
     url("../images/contact.jpg") center/cover no-repeat fixed #10140D;
-  padding:70px 22px;
+  padding:76px 22px;
 }
-.photo-band p{
-  color:#fff;font-size:clamp(20px,3.6vw,32px);font-weight:900;letter-spacing:.04em;
-  text-align:center;text-shadow:0 2px 20px rgba(0,0,0,.5);line-height:1.7;
+.pb-inner{text-align:center;max-width:760px}
+.pb-disp{
+  font-family:var(--font-latin);font-weight:800;font-stretch:118%;font-size:13px;
+  letter-spacing:.34em;color:#8FE79A;text-transform:uppercase;margin-bottom:14px;
 }
-@media (max-width:860px){.photo-band{background-attachment:scroll;min-height:220px;padding:52px 22px}}
+.pb-inner h2{
+  color:#fff;font-size:clamp(24px,4.4vw,40px);font-weight:900;letter-spacing:.03em;
+  text-shadow:0 2px 20px rgba(0,0,0,.5);line-height:1.5;
+}
+.pb-sub{
+  margin-top:14px;color:#D7E0CC;font-size:clamp(13.5px,1.8vw,15.5px);line-height:1.9;
+  text-shadow:0 1px 12px rgba(0,0,0,.6);
+}
+@media (max-width:860px){.photo-band{background-attachment:scroll;min-height:240px;padding:56px 22px}}
 
 /* ================= FAQ ================= */
 .faq-item{border-bottom:1px solid var(--line)}
@@ -603,3 +612,31 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
 
 .foot-logo{height:26px;width:auto;margin-bottom:8px}
 @media (max-width:480px){.brand img{height:22px}}
+
+
+/* ---- 特徴バー ---- */
+.feat-strip{background:var(--white);border-bottom:1px solid var(--line)}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 22px}
+.feat{display:flex;gap:12px;align-items:center;min-width:0}
+.feat-ic{
+  flex:none;width:44px;height:44px;border-radius:12px;background:var(--green-pale);
+  color:var(--green-deep);display:flex;align-items:center;justify-content:center;
+}
+.feat-ic svg{width:22px;height:22px}
+.feat b{
+  display:block;font-family:var(--font-latin);font-weight:800;font-stretch:112%;
+  font-size:12px;letter-spacing:.14em;color:var(--ink);
+}
+.feat span{font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.5}
+@media (max-width:960px){.feat-grid{grid-template-columns:1fr 1fr;gap:12px 18px}}
+@media (max-width:480px){
+  .feat-grid{padding:14px 16px;gap:10px 12px}
+  .feat-ic{width:36px;height:36px}
+  .feat-ic svg{width:18px;height:18px}
+  .feat b{font-size:10.5px;letter-spacing:.1em}
+  .feat span{font-size:11px}
+}
+
+/* ---- ヒーロー：緑の予約ボタン（参考デザイン準拠） ---- */
+.btn-green{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
+.btn-green:hover{background:var(--green-deep)!important;border-color:var(--green-deep)!important}

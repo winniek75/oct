@@ -198,7 +198,10 @@
           ${desc ? `<p class="used-desc">${desc}</p>` : ""}
           <div class="used-foot">
             <span class="used-price">${b.price ? yen(b.price) : ""}</span>
-            ${!sold && C.links.line ? `<a class="used-cta" href="${C.links.line}" target="_blank" rel="noopener">${t("used.cta")}${b.id ? "（" + b.id + "）" : ""}</a>` : ""}
+            <span class="used-actions">
+              ${!sold && b.payLink && b.payLink.indexOf("https://buy.stripe.com") === 0 ? `<a class="used-buy" href="${b.payLink}" target="_blank" rel="noopener">${t("used.buy")}</a>` : ""}
+              ${!sold && C.links.line ? `<a class="used-cta" href="${C.links.line}" target="_blank" rel="noopener">${t("used.cta")}${b.id ? "（" + b.id + "）" : ""}</a>` : ""}
+            </span>
           </div>
         </div>
       </article>`;

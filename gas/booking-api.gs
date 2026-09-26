@@ -45,7 +45,7 @@ function setup() {
   if (!sv) sv = ss.insertSheet(SALES_SHEET_NAME);
   if (sv.getLastRow() === 0) {
     sv.appendRow(["掲載ID", "車種名", "カテゴリ", "サイズ", "年式", "状態", "価格",
-                  "写真URL1", "写真URL2", "写真URL3", "説明", "説明(English)", "ステータス", "メモ(非公開)"]);
+                  "写真URL1", "写真URL2", "写真URL3", "説明", "説明(English)", "ステータス", "メモ(非公開)", "決済リンク(Stripe)"]);
     sv.setFrozenRows(1);
     const srule = SpreadsheetApp.newDataValidation()
       .requireValueInList(["販売中", "商談中", "売約済", "非公開"], true)
@@ -55,8 +55,8 @@ function setup() {
                   "整備済・良好", "58000",
                   "https://drive.google.com/file/d/ここに写真のファイルIDが入ったURL/view", "", "",
                   "前後タイヤ新品交換済み。ワイヤー類調整済み。", "Both tires replaced, cables tuned.",
-                  "非公開", "記入例です。ステータスを「販売中」にするとサイトに表示されます"]);
-    sv.autoResizeColumns(1, 14);
+                  "非公開", "記入例です。ステータスを「販売中」にするとサイトに表示されます", ""]);
+    sv.autoResizeColumns(1, 15);
   }
 }
 
@@ -108,7 +108,7 @@ function doGet(e) {
     const sh = ss_().getSheetByName(SALES_SHEET_NAME);
     const bikes = [];
     if (sh && sh.getLastRow() > 1) {
-      const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 13).getValues();
+      const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 15).getValues();
       rows.forEach(function (r) {
         const status = String(r[12] || "").trim();
         if (!r[1] || status === "非公開") return;
@@ -119,7 +119,8 @@ function doGet(e) {
           photos: [r[7], r[8], r[9]].map(function (v) { return String(v || "").trim(); })
                     .filter(function (v) { return v && v.indexOf("ここに写真") === -1; }),
           desc: String(r[10] || ""), descEn: String(r[11] || ""),
-          status: status || "販売中"
+          status: status || "販売中",
+          payLink: String(r[14] || "").trim()
         });
       });
     }

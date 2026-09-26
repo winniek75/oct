@@ -702,3 +702,10 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
   padding:34px 26px;text-align:center;
 }
 .used-empty p{color:var(--ink-soft);font-size:14.5px;line-height:1.9;max-width:34em;margin:0 auto 16px}
+
+.used-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.used-buy{
+  display:inline-block;background:var(--green);color:#fff;font-weight:800;font-size:13px;
+  text-decoration:none;border-radius:999px;padding:9px 16px;
+}
+.used-buy:hover{background:var(--green-deep)}

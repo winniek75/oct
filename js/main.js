@@ -168,9 +168,15 @@
     const wrap = document.getElementById("usedList");
     const nav = document.getElementById("navUsed");
     if (!sec || !wrap) return;
-    if (!usedBikes || !usedBikes.length) { sec.hidden = true; if (nav) nav.hidden = true; return; }
-    sec.hidden = false;
-    if (nav) nav.hidden = false;
+    if (!usedBikes || !usedBikes.length) {
+      // 掲載0件でもセクションは表示し、LINEへの導線を出す
+      wrap.innerHTML = `
+      <div class="used-empty">
+        <p>${t("used.empty")}</p>
+        ${C.links.line ? `<a class="used-cta" href="${C.links.line}" target="_blank" rel="noopener">${t("used.emptyCta")}</a>` : ""}
+      </div>`;
+      return;
+    }
     wrap.innerHTML = usedBikes.map((b) => {
       const sold = b.status === "売約済";
       const hold = b.status === "商談中";
@@ -259,9 +265,12 @@
     const plan = $("bkPlan").value;
     const qty = Math.max(1, parseInt($("bkQty").value || "1", 10));
     const wantsDelivery = $("bkDelivery") && $("bkDelivery").checked;
-    let unit, days = 1;
+    let unit, days = 1, months = 1;
     if (plan === "week") unit = P.week;
-    else if (plan === "month") unit = P.month;
+    else if (plan === "month") {
+      months = Math.min(12, Math.max(1, parseInt($("bkMonths").value || "1", 10)));
+      unit = P.month * months;
+    }
     else {
       days = Math.min(6, Math.max(1, parseInt($("bkDays").value || "1", 10)));
       unit = P.day1 + (days - 1) * P.dayExtra;
@@ -273,12 +282,14 @@
       ward = areaSel.selectedOptions[0].dataset.ward || "";
     }
     const total = unit * qty + fee;   // 配達料は1予約につき1回
-    return { plan, qty, days, unit, total, wantsDelivery, fee, ward };
+    return { plan, qty, days, months, unit, total, wantsDelivery, fee, ward };
   }
 
   function updateBooking() {
     const r = calcTotal();
     $("bkDaysWrap").hidden = r.plan !== "days";
+    $("bkMonthsWrap").hidden = r.plan !== "month";
+    $("bkLongHint").hidden = !(r.plan === "month" && r.months >= 2);
     $("bkAreaWrap").hidden = !r.wantsDelivery;
     $("bkTotal").textContent = yen(r.total);
     $("bkWeekHint").hidden = !(r.plan === "days" && r.unit >= C.pricing.week);
@@ -287,7 +298,9 @@
        - 配達なし → 通常のStripeリンク
        - 配達あり → 選択エリアの料金帯に対応した配達込みリンク
        - 該当リンク未設定 → 即時決済を隠し、リクエスト送信に誘導 */
-    const linkKey = r.plan === "days" ? (r.days === 1 ? "day1" : null) : r.plan;
+    const linkKey = r.plan === "days" ? (r.days === 1 ? "day1" : null)
+      : r.plan === "month" ? (r.months === 1 ? "month" : null)
+      : r.plan;
     let payUrl = "";
     if (linkKey) {
       if (!r.wantsDelivery) payUrl = C.paymentLinks[linkKey] || "";
@@ -303,13 +316,14 @@
   }
 
   function rentalDays(r) {
-    return r.plan === "week" ? 7 : r.plan === "month" ? 30 : r.days;
+    return r.plan === "week" ? 7 : r.plan === "month" ? 30 * r.months : r.days;
   }
   function endDateStr(startStr, r) {
     if (!startStr) return "";
     const d = new Date(startStr + "T00:00:00");
     d.setDate(d.getDate() + rentalDays(r) - 1);   // 終了日＝返却日（両端含む）
-    return d.toISOString().slice(0, 10);
+    const p = (n) => String(n).padStart(2, "0");  // タイムゾーンずれ防止のためローカル日付で組み立て
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
   }
 
   function bookingData() {
@@ -317,7 +331,7 @@
     const bike = C.bikes.find((b) => b.id === $("bkBike").value) || C.bikes[0];
     const planLabel =
       r.plan === "week" ? t("book.plan.week") :
-      r.plan === "month" ? t("book.plan.month") :
+      r.plan === "month" ? r.months + t("book.monthsUnit") :
       r.days + " " + t("book.daysUnit");
     const start = $("bkStart").value || "";
     return {
@@ -458,7 +472,7 @@
 
   function initBooking() {
     if (!$("bkPlan")) return;
-    ["bkPlan", "bkDays", "bkQty", "bkBike", "bkDelivery", "bkArea"].forEach((id) => {
+    ["bkPlan", "bkDays", "bkMonths", "bkQty", "bkBike", "bkDelivery", "bkArea"].forEach((id) => {
       const el = $(id);
       el && el.addEventListener("input", () => { updateBooking(); checkAvailability(); });
       el && el.addEventListener("change", () => { updateBooking(); checkAvailability(); });

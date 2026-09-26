@@ -696,3 +696,9 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
   .legal-table th,.legal-table td{display:block;width:100%}
   .legal-table th{border-bottom:0;padding-bottom:4px}
 }
+
+.used-empty{
+  grid-column:1/-1;background:var(--white);border:1.5px dashed var(--line);border-radius:var(--radius);
+  padding:34px 26px;text-align:center;
+}
+.used-empty p{color:var(--ink-soft);font-size:14.5px;line-height:1.9;max-width:34em;margin:0 auto 16px}

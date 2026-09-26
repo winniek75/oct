@@ -67,8 +67,8 @@
     <nav class="main" id="nav">
       <a href="#rental" data-i18n="nav.rental">レンタル</a>
       <a href="#pricing" data-i18n="nav.pricing">料金</a>
+      <a href="#usedbikes" id="navUsed" data-i18n="nav.used">販売車両</a>
       <a href="#services" data-i18n="nav.services">事業内容</a>
-      <a href="#usedbikes" id="navUsed" hidden data-i18n="nav.used">販売車両</a>
       <a href="#access" data-i18n="nav.access">アクセス</a>
       <a href="#faq" data-i18n="nav.faq">よくある質問</a>
       <a href="#contact" data-i18n="nav.contact">お問い合わせ</a>
@@ -94,7 +94,7 @@
     <p class="hero-lead" data-i18n="hero.lead"></p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-green" href="#booking" data-i18n="hero.cta">レンタルを予約する</a>
-      <a class="btn btn-hero-ghost" href="#services" data-i18n="hero.cta2">事業内容を見る</a>
+      <a class="btn btn-hero-ghost" href="#usedbikes" data-i18n="hero.cta2">販売車両を見る</a>
     </div>
     <div class="hero-stats">
       <div class="stat"><b>365</b><span data-i18n="stat.open">日営業・定休日なし</span></div>
@@ -183,6 +183,10 @@
               <input type="number" id="bkQty" min="1" max="10" value="1">
             </div>
           </div>
+          <div class="field" id="bkMonthsWrap" hidden>
+            <label for="bkMonths" data-i18n="book.months">ヶ月数</label>
+            <input type="number" id="bkMonths" min="1" max="12" value="1">
+          </div>
           <div class="field">
             <label for="bkStart" data-i18n="book.start">開始日</label>
             <input type="date" id="bkStart">
@@ -209,6 +213,7 @@
             <span class="amt" id="bkTotal">¥3,500</span>
           </div>
           <p class="hint" id="bkWeekHint" hidden data-i18n="book.weekHint"></p>
+          <p class="hint" id="bkLongHint" hidden data-i18n="book.longHint"></p>
           <p class="hint hint-delivery" id="bkDeliveryHint" hidden data-i18n="book.deliveryHint"></p>
           <p class="hint hint-ok" id="bkDone" hidden data-i18n="book.done"></p>
           <p class="hint hint-delivery" id="bkErr" hidden data-i18n="book.err"></p>
@@ -247,6 +252,7 @@
       <div class="price-cell">
         <p class="plan" data-i18n="pricing.month">1ヶ月</p>
         <p class="val" id="priceMonth">¥22,000</p>
+        <p class="note" data-i18n="pricing.monthNote">2ヶ月以上の長期もOK</p>
       </div>
     </div>
     <div class="delivery-box">
@@ -260,6 +266,18 @@
   </div>
 </section>
 
+<!-- ================= 販売車両（中古販売） ================= -->
+<section class="sec sec-alt" id="usedbikes">
+  <div class="container">
+    <div class="sec-head rv">
+      <p class="disp">FOR SALE</p>
+      <h2 data-i18n="usedbikes.heading">販売車両</h2>
+    </div>
+    <p class="rental-lead" data-i18n="usedbikes.lead"></p>
+    <div class="used-grid" id="usedList"></div>
+  </div>
+</section>
+
 <!-- ================= ブリッジ（レンタル→事業内容） ================= -->
 <section class="photo-band">
   <div class="pb-inner rv">
@@ -270,7 +288,7 @@
 </section>
 
 <!-- ================= 事業内容 ================= -->
-<section class="sec sec-alt" id="services">
+<section class="sec" id="services">
   <div class="container">
     <div class="sec-head rv">
       <p class="disp">WHAT WE DO</p>
@@ -278,18 +296,6 @@
     </div>
     <div class="svc-grid rv" id="serviceList"></div>
     <p class="svc-closing" id="servicesClosing"></p>
-  </div>
-</section>
-
-<!-- ================= 販売車両（中古販売） ================= -->
-<section class="sec" id="usedbikes" hidden>
-  <div class="container">
-    <div class="sec-head rv">
-      <p class="disp">FOR SALE</p>
-      <h2 data-i18n="usedbikes.heading">販売車両</h2>
-    </div>
-    <p class="rental-lead" data-i18n="usedbikes.lead"></p>
-    <div class="used-grid" id="usedList"></div>
   </div>
 </section>
 

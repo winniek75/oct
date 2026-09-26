@@ -146,7 +146,11 @@
           <p>${tx(s.desc)}</p>
           <p class="svc-more">${
             s.links
-              ? s.links.map((l) => `<a href="${l.url}">${tx(l.label)}</a>`).join(" ／ ")
+              ? s.links.map((l) => {
+                  const href = l.useLine ? C.links.line : l.url;
+                  const ext = l.useLine ? ` target="_blank" rel="noopener" class="svc-line"` : "";
+                  return href ? `<a href="${href}"${ext}>${tx(l.label)}</a>` : "";
+                }).filter(Boolean).join(" ／ ")
               : (C.links.line ? `<a href="${C.links.line}" target="_blank" rel="noopener" class="svc-line">${t("svc.line")}</a>` : "")
           }</p>
         </div>

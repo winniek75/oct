@@ -37,10 +37,10 @@ const OCTO_CONFIG = {
     mapQuery: "東京都世田谷区羽根木1-29-13",
     closedDays: { ja: "定休日なし", en: "Open every day", ko: "연중무휴", zh: "全年无休" },
     note: {
-      ja: "貸出・返却は羽根木の拠点にて。時間はご予約時に調整します。",
-      en: "Pick-up & return at our Haneki base. Times arranged when you book.",
-      ko: "대여·반납은 하네기 거점에서. 시간은 예약 시 조정합니다.",
-      zh: "取车·还车地点为羽根木据点。具体时间在预约时协商。"
+      ja: "貸出・返却は世田谷の拠点にて。時間はご予約時に調整します。",
+      en: "Pick-up & return at our Setagaya base. Times arranged when you book.",
+      ko: "대여·반납은 세타가야 거점에서. 시간은 예약 시 조정합니다.",
+      zh: "取车·还车地点为世田谷据点。具体时间在预约时协商。"
     }
   },
 
@@ -140,13 +140,15 @@ const OCTO_CONFIG = {
      ja本文はご指定の文言そのまま。順序の入れ替え・追加はこの配列を編集。 */
   services: [
     {
-      id: "sale", icon: "cart", photo: "images/specialimg03.jpg", latin: "SALES",
-      name: { ja: "自転車販売", en: "Bicycle Sales", ko: "자전거 판매", zh: "自行车销售" },
+      id: "sale", icon: "cart", photo: "images/specialimg03.jpg", latin: "NEW BIKES",
+      links: [{ url: "", useLine: true,
+                label: { ja: "新車のご相談はLINEで", en: "Ask about new bikes on LINE", ko: "새 자전거 상담은 LINE으로", zh: "新车咨询请用LINE" } }],
+      name: { ja: "新車販売・お取り寄せ", en: "New Bike Sales", ko: "새 자전거 판매·주문", zh: "新车销售·代订" },
       desc: {
-        ja: "ロードバイクからクロスバイク、一般車、電動アシスト自転車まで、お客様の用途やライフスタイルに合わせた自転車をご提案します。初めての方からスポーツバイクを楽しむ方まで、購入前のご相談から車体選びまで丁寧にサポートします。",
-        en: "From road bikes and hybrids to city bikes and e-assist bicycles, we propose the right bike for your needs and lifestyle — with careful support from pre-purchase consultation to choosing the frame, for beginners and sport riders alike.",
-        ko: "로드바이크부터 크로스바이크, 일반 자전거, 전동 어시스트 자전거까지, 용도와 라이프스타일에 맞는 자전거를 제안합니다. 구매 전 상담부터 차체 선택까지 정성껏 지원합니다.",
-        zh: "从公路车、混合动力车到普通自行车、电动助力车，根据您的用途与生活方式推荐合适的车型。从购前咨询到选车，全程细致支持。"
+        ja: "ロードバイクからクロスバイク、一般車、電動アシスト自転車まで、メーカーの新車をご用途とご予算に合わせてご提案・お取り寄せします。初めての方からスポーツバイクを楽しむ方まで、購入前のご相談から車体選びまで丁寧にサポートします。",
+        en: "Brand-new bikes, ordered in for you — road, hybrid, city and e-assist. We help you choose the right model and size, from first consultation to handover, for beginners and sport riders alike.",
+        ko: "로드바이크부터 크로스바이크, 일반 자전거, 전동 어시스트까지, 메이커 새 자전거를 용도와 예산에 맞춰 제안·주문해 드립니다. 구매 전 상담부터 차체 선택까지 정성껏 지원합니다.",
+        zh: "从公路车、混合动力车到普通自行车、电动助力车，根据您的用途与预算推荐并代订全新车辆。从购前咨询到选车，全程细致支持。"
       }
     },
     {
@@ -184,15 +186,15 @@ const OCTO_CONFIG = {
       }
     },
     {
-      id: "used", icon: "recycle", photo: "images/specialimg00.jpg", latin: "USED & CONSIGN",
+      id: "used", icon: "recycle", photo: "images/specialimg00.jpg", latin: "USED BIKES",
       links: [{ url: "#usedbikes",
                 label: { ja: "販売中の車両を見る", en: "See bikes for sale", ko: "판매 차량 보기", zh: "查看在售车辆" } }],
-      name: { ja: "中古自転車・委託販売", en: "Used Bikes & Consignment", ko: "중고 자전거·위탁 판매", zh: "二手自行车·委托销售" },
+      name: { ja: "中古自転車販売・委託", en: "Used Bike Sales", ko: "중고 자전거 판매·위탁", zh: "二手自行车销售·委托" },
       desc: {
-        ja: "不要になった自転車や買い替えを検討している自転車の委託販売にも対応。状態を確認し、次に必要とする方へつなげます。",
-        en: "We also handle consignment sales of bicycles you no longer need or plan to replace — checking their condition and passing them on to the next rider.",
-        ko: "필요 없어진 자전거나 교체를 검토 중인 자전거의 위탁 판매에도 대응합니다. 상태를 확인해 다음 필요한 분께 연결합니다.",
-        zh: "也受理闲置自行车或计划换购车辆的委托销售。确认车况后，将它交到下一位需要的人手中。"
+        ja: "整備済みの中古自転車を、このサイトと店頭で販売しています。掲載中の車両はそのままオンライン購入もOK。お手持ちの自転車を売りたい方の委託販売も承ります。",
+        en: "Serviced used bikes, sold right here on this site and in store — buy a listed bike online, or consign the bike you no longer ride.",
+        ko: "정비된 중고 자전거를 이 사이트와 매장에서 판매합니다. 게재 중인 차량은 온라인 구매도 가능. 타지 않는 자전거의 위탁 판매도 받습니다.",
+        zh: "经专业检修的二手自行车，在本站和店内均有销售。在售车辆可直接在线购买；闲置自行车的委托销售也欢迎咨询。"
       }
     },
     {

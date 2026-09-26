@@ -95,6 +95,8 @@
     linkOrHide("footInsta", C.links.instagram);
     linkOrHide("footReview", C.links.googleReview);
     linkOrHide("footLine", C.links.line);
+    const lic = document.getElementById("footLicense");
+    if (lic && C.antiqueLicense) { lic.textContent = C.antiqueLicense + "｜"; lic.hidden = false; }
   }
   function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function linkOrHide(id, url) {
@@ -150,6 +152,63 @@
         </div>
       </article>`).join("");
     setText("servicesClosing", tx(C.servicesClosing));
+  }
+
+  /* ---------- 販売車両（中古販売） ---------- */
+  let usedBikes = null;   // APIから取得した掲載データのキャッシュ
+
+  function imgUrl(u) {
+    // GoogleドライブのURLを画像表示用に変換（それ以外はそのまま）
+    const mt = String(u || "").match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^"]*?id=)([\w-]{20,})/);
+    return mt ? "https://lh3.googleusercontent.com/d/" + mt[1] : u;
+  }
+
+  function renderUsedBikes() {
+    const sec = document.getElementById("usedbikes");
+    const wrap = document.getElementById("usedList");
+    const nav = document.getElementById("navUsed");
+    if (!sec || !wrap) return;
+    if (!usedBikes || !usedBikes.length) { sec.hidden = true; if (nav) nav.hidden = true; return; }
+    sec.hidden = false;
+    if (nav) nav.hidden = false;
+    wrap.innerHTML = usedBikes.map((b) => {
+      const sold = b.status === "売約済";
+      const hold = b.status === "商談中";
+      const photo = b.photos && b.photos.length ? imgUrl(b.photos[0]) : "";
+      const desc = (lang !== "ja" && b.descEn) ? b.descEn : b.desc;
+      const chips = [b.cat, b.size, b.year, b.cond].filter(Boolean)
+        .map((cst) => `<li>${cst}</li>`).join("");
+      return `
+      <article class="used-card${sold ? " is-sold" : ""}">
+        <div class="used-photo">
+          ${photo ? `<img src="${photo}" alt="${b.name}" loading="lazy">`
+                  : `<div class="used-nophoto" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 17a3.5 3.5 0 1 0 0 .01M19 17a3.5 3.5 0 1 0 0 .01M5 17l4-8h5l3 8M9 9h6l-2-3h-3"/></svg></div>`}
+          ${sold ? `<span class="used-badge sold">${t("used.sold")}</span>` :
+            hold ? `<span class="used-badge hold">${t("used.hold")}</span>` : ""}
+        </div>
+        <div class="used-body">
+          <h3>${b.name}</h3>
+          <ul class="used-chips">${chips}</ul>
+          ${desc ? `<p class="used-desc">${desc}</p>` : ""}
+          <div class="used-foot">
+            <span class="used-price">${b.price ? yen(b.price) : ""}</span>
+            ${!sold && C.links.line ? `<a class="used-cta" href="${C.links.line}" target="_blank" rel="noopener">${t("used.cta")}${b.id ? "（" + b.id + "）" : ""}</a>` : ""}
+          </div>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  async function loadUsedBikes() {
+    if (!C.bookingApiUrl) return;
+    try {
+      const res = await fetch(C.bookingApiUrl + "?action=bikes");
+      const out = await res.json();
+      if (out.ok && Array.isArray(out.bikes)) {
+        usedBikes = out.bikes;
+        renderUsedBikes();
+      }
+    } catch (err) { /* API不通時はセクション非表示のまま */ }
   }
 
   /* ---------- FAQ ---------- */
@@ -472,6 +531,7 @@
     renderBikes();
     renderServices();
     renderFaq();
+    renderUsedBikes();
     renderBookingOptions();
   }
   applyI18n();
@@ -479,4 +539,5 @@
   initBooking();
   initChrome();
   initEffects();
+  loadUsedBikes();
 })();

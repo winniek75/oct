@@ -3,6 +3,13 @@
 ========================================================= */
 const OCTO_I18N = {
   ja: {
+    "nav.used": "販売車両",
+    "usedbikes.heading": "販売車両",
+    "usedbikes.lead": "すべて整備してお渡しする、現車確認OKの車両です。レンタルで試乗してからのご購入も歓迎（レンタル代は購入代金に充当します）。気になる車両は掲載IDを添えてLINEでどうぞ。",
+    "used.hold": "商談中",
+    "used.sold": "SOLD",
+    "used.cta": "LINEで購入相談",
+    "footer.legal": "特定商取引法に基づく表記",
     "nav.rental": "レンタル",
     "nav.pricing": "料金",
     "nav.services": "事業内容",
@@ -91,6 +98,13 @@ const OCTO_I18N = {
   },
 
   en: {
+    "nav.used": "For Sale",
+    "usedbikes.heading": "Bikes for Sale",
+    "usedbikes.lead": "Every bike is serviced before handover, and you\u0027re welcome to inspect it in person. Rent it first if you like \u2014 the rental fee counts toward your purchase. Message us on LINE with the listing ID.",
+    "used.hold": "On hold",
+    "used.sold": "SOLD",
+    "used.cta": "Ask on LINE",
+    "footer.legal": "Legal notice (JP commerce law)",
     "nav.rental": "Rental",
     "nav.pricing": "Pricing",
     "nav.services": "Services",
@@ -179,6 +193,13 @@ const OCTO_I18N = {
   },
 
   ko: {
+    "nav.used": "판매 차량",
+    "usedbikes.heading": "판매 차량",
+    "usedbikes.lead": "모든 차량은 정비 후 인도하며, 실물 확인도 환영합니다. 렌털로 타본 뒤 구매도 OK(렌털 요금은 구매 대금에 충당). 관심 차량은 게재 ID와 함께 LINE으로 문의해 주세요.",
+    "used.hold": "상담 중",
+    "used.sold": "SOLD",
+    "used.cta": "LINE으로 구매 문의",
+    "footer.legal": "특정상거래법 표기",
     "nav.rental": "렌털",
     "nav.pricing": "요금",
     "nav.services": "사업 내용",
@@ -267,6 +288,13 @@ const OCTO_I18N = {
   },
 
   zh: {
+    "nav.used": "在售车辆",
+    "usedbikes.heading": "在售车辆",
+    "usedbikes.lead": "所有车辆均经专业检修后交付，欢迎到店看车。也可先租后买（租金可抵扣购车款）。对某辆车感兴趣，请附上编号通过LINE咨询。",
+    "used.hold": "洽谈中",
+    "used.sold": "已售出",
+    "used.cta": "LINE咨询购买",
+    "footer.legal": "特定商业交易法标示",
     "nav.rental": "租车",
     "nav.pricing": "价格",
     "nav.services": "业务内容",

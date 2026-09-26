@@ -68,6 +68,7 @@
       <a href="#rental" data-i18n="nav.rental">レンタル</a>
       <a href="#pricing" data-i18n="nav.pricing">料金</a>
       <a href="#services" data-i18n="nav.services">事業内容</a>
+      <a href="#usedbikes" id="navUsed" hidden data-i18n="nav.used">販売車両</a>
       <a href="#access" data-i18n="nav.access">アクセス</a>
       <a href="#faq" data-i18n="nav.faq">よくある質問</a>
       <a href="#contact" data-i18n="nav.contact">お問い合わせ</a>
@@ -280,6 +281,18 @@
   </div>
 </section>
 
+<!-- ================= 販売車両（中古販売） ================= -->
+<section class="sec" id="usedbikes" hidden>
+  <div class="container">
+    <div class="sec-head rv">
+      <p class="disp">FOR SALE</p>
+      <h2 data-i18n="usedbikes.heading">販売車両</h2>
+    </div>
+    <p class="rental-lead" data-i18n="usedbikes.lead"></p>
+    <div class="used-grid" id="usedList"></div>
+  </div>
+</section>
+
 <!-- ================= アクセス ================= -->
 <section class="sec" id="access">
   <div class="container">
@@ -343,8 +356,9 @@
       <a id="footInsta" target="_blank" rel="noopener">Instagram</a>
       <a id="footReview" target="_blank" rel="noopener" data-i18n="trust.review">Googleクチコミ</a>
       <a id="footLine" target="_blank" rel="noopener">LINE</a>
+      <a href="tokushoho.html" data-i18n="footer.legal">特定商取引法に基づく表記</a>
     </div>
-    <p>© 2026 OCTO BICYCLE, Setagaya, Tokyo</p>
+    <p><span id="footLicense" hidden></span>© 2026 OCTO BICYCLE, Setagaya, Tokyo</p>
   </div>
 </footer>
 

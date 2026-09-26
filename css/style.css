@@ -640,3 +640,59 @@ nav.static-nav{display:flex!important;position:static!important;flex-direction:r
 /* ---- ヒーロー：緑の予約ボタン（参考デザイン準拠） ---- */
 .btn-green{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
 .btn-green:hover{background:var(--green-deep)!important;border-color:var(--green-deep)!important}
+
+
+/* ================= 販売車両（中古販売） ================= */
+.used-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.used-card{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.used-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(20,40,20,.15);border-color:var(--green)}
+.used-photo{position:relative;aspect-ratio:4/3;background:#EFF1EA;overflow:hidden}
+.used-photo img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.used-card:hover .used-photo img{transform:scale(1.05)}
+.used-nophoto{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#B9C1AE}
+.used-nophoto svg{width:64px;height:64px}
+.used-badge{
+  position:absolute;top:12px;left:12px;font-family:var(--font-latin);
+  font-weight:800;font-stretch:112%;font-size:12px;letter-spacing:.12em;
+  border-radius:8px;padding:4px 12px;color:#fff;
+}
+.used-badge.hold{background:#B8860B}
+.used-badge.sold{background:#5A6253}
+.used-card.is-sold .used-photo img{filter:grayscale(1);opacity:.75}
+.used-card.is-sold .used-price{color:var(--muted);text-decoration:line-through}
+.used-body{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
+.used-body h3{font-size:16.5px;font-weight:900;margin-bottom:9px;line-height:1.5}
+.used-chips{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:0 0 10px}
+.used-chips li{
+  background:var(--green-pale);color:var(--green-deep);font-weight:700;font-size:12px;
+  border-radius:999px;padding:3px 11px;
+}
+.used-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.8}
+.used-foot{
+  margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);margin-top:14px;
+}
+.used-price{font-family:var(--font-latin);font-weight:800;font-size:23px;color:var(--ink)}
+.used-cta{
+  display:inline-block;background:#06C755;color:#fff;font-weight:800;font-size:13px;
+  text-decoration:none;border-radius:999px;padding:9px 16px;
+}
+.used-cta:hover{background:#05A847}
+@media (max-width:960px){.used-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.used-grid{grid-template-columns:1fr}}
+
+/* 特商法ページの表 */
+.legal-table{width:100%;border-collapse:collapse;margin-top:8px;background:var(--white);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:14px}
+.legal-table th,.legal-table td{border-bottom:1px solid var(--line);padding:14px 16px;
+  text-align:left;vertical-align:top;line-height:1.8}
+.legal-table th{width:32%;background:#F0F2EB;font-weight:800;color:var(--ink-soft);white-space:nowrap}
+.legal-table tr:last-child th,.legal-table tr:last-child td{border-bottom:0}
+@media (max-width:560px){
+  .legal-table th,.legal-table td{display:block;width:100%}
+  .legal-table th{border-bottom:0;padding-bottom:4px}
+}

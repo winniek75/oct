@@ -19,6 +19,11 @@ const OCTO_CONFIG = {
   adminEmail: "octobicycle@gmail.com",
   phone: "+81-70-3227-6440",
 
+  /* 古物商許可番号（例: "東京都公安委員会許可 第123456789012号"）。
+     入力するとフッターと特商法ページからの信頼表示に使われます。 */
+  antiqueLicense: "東京都公安委員会許可 第303252421244号",
+
+
   /* ---- 拠点（貸出・返却場所）---- */
   location: {
     /* 掲載するのは羽根木の拠点住所のみ。
@@ -180,6 +185,8 @@ const OCTO_CONFIG = {
     },
     {
       id: "used", icon: "recycle", photo: "images/specialimg00.jpg", latin: "USED & CONSIGN",
+      links: [{ url: "#usedbikes",
+                label: { ja: "販売中の車両を見る", en: "See bikes for sale", ko: "판매 차량 보기", zh: "查看在售车辆" } }],
       name: { ja: "中古自転車・委託販売", en: "Used Bikes & Consignment", ko: "중고 자전거·위탁 판매", zh: "二手自行车·委托销售" },
       desc: {
         ja: "不要になった自転車や買い替えを検討している自転車の委託販売にも対応。状態を確認し、次に必要とする方へつなげます。",
